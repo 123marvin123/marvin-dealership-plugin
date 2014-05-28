@@ -1,0 +1,7 @@
+class: org.marvin.dealership.DealershipPlugin
+name: Car Dealership
+version: 0.1-SNAPSHOT
+buildNumber: 0
+buildDate: Unknown
+authors: 123marvin123
+description: Ein Dealership System für alle arten von Servern.
