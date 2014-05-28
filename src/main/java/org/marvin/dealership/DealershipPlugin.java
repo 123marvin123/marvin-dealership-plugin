@@ -129,7 +129,7 @@ public class DealershipPlugin extends Plugin {
                 if(messageLog != null) {
                     String[] parts = messageLog.split("[|]");
                     for(String part : parts) {
-                        System.out.println(part);
+                        //TODO: add messagelog load system
                     }
                 }
                 String parkingList = providerSet.getString("parkingList");
