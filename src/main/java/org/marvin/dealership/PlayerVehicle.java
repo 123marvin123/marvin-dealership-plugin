@@ -157,7 +157,6 @@ public class PlayerVehicle {
         if(vehicle != null && !vehicle.isDestroyed())
             vehicle.destroy();
         vehicle = Vehicle.create(model, spawnX, spawnY, spawnZ, spawnA, color1, color2, -1);
-        vehicle.getState().setEngine(0);
     }
 
     public void destoryVehicle() {

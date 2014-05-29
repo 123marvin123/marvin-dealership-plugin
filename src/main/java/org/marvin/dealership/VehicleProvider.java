@@ -6,6 +6,7 @@ import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.data.Vector3D;
 import net.gtaun.shoebill.object.Label;
 import net.gtaun.shoebill.object.Pickup;
+import net.gtaun.shoebill.object.Vehicle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +16,6 @@ import java.util.List;
  */
 public class VehicleProvider {
     private String owner;
-    private Vector3D cameraViewPostion;
-    private Vector3D cameraLookAt;
     private List<VehicleOffer> offerList;
     private List<VehicleBoughtLogEntry> boughtLogEntryList;
     private List<AngledLocation> parkingList;
@@ -25,21 +24,25 @@ public class VehicleProvider {
     private Label informationLabel;
     private Pickup pickup;
     private int databaseId;
+    private String name;
+    private List<BuyableVehicleLicense> boughtLicenses;
 
-    public VehicleProvider(String owner, Location pickupPosition, Vector3D cameraViewPostion, Vector3D cameraLookAt) {
+    public VehicleProvider(String owner, Location pickupPosition) {
         this.owner = owner;
         this.pickupPosition = pickupPosition;
         this.offerList = new ArrayList<>();
         this.boughtLogEntryList = new ArrayList<>();
         this.parkingList = new ArrayList<>();
-        this.informationLabel = Label.create("|-- Autohändler --|\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size() + "\nBenutze: /pbuy", Color.BEIGE, pickupPosition, 0, 20, false);
         this.pickup = Pickup.create(1275, 1, pickupPosition);
-        this.cameraLookAt = cameraLookAt;
-        this.cameraViewPostion = cameraViewPostion;
+        this.boughtLicenses = new ArrayList<>();
+        update3DTextLabel();
     }
 
     public void update3DTextLabel() {
-        informationLabel.update(Color.BEIGE, "|-- Autohändler --|\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size() + "\nBenutze: /pbuy");
+    	if(informationLabel == null || informationLabel.isDestroyed()) {
+    		this.informationLabel = Label.create("|-- Autohändler --|\nName: " + name + "\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size(), Color.BEIGE, pickupPosition, 0, 20, false);
+    	} else
+    		informationLabel.update(Color.BEIGE, "|-- Autohändler --|\nName: " + name + "\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size());
     }
 
     public String getOwner() {
@@ -48,22 +51,6 @@ public class VehicleProvider {
 
     public void setOwner(String owner) {
         this.owner = owner;
-    }
-
-    public Vector3D getCameraViewPostion() {
-        return cameraViewPostion;
-    }
-
-    public void setCameraViewPostion(Vector3D cameraViewPostion) {
-        this.cameraViewPostion = cameraViewPostion;
-    }
-
-    public Vector3D getCameraLookAt() {
-        return cameraLookAt;
-    }
-
-    public void setCameraLookAt(Vector3D cameraLookAt) {
-        this.cameraLookAt = cameraLookAt;
     }
 
     public List<VehicleOffer> getOfferList() {
@@ -129,4 +116,24 @@ public class VehicleProvider {
     public void setDatabaseId(int databaseId) {
         this.databaseId = databaseId;
     }
+
+    public List<BuyableVehicleLicense> getBoughtLicenses() {
+        return boughtLicenses;
+    }
+
+    public VehicleOffer hasVehicle(Vehicle vehicle) {
+        return offerList.stream().filter(voffer -> voffer.getPreview() == vehicle).findAny().orElse(null);
+    }
+
+    public boolean hasLicense(int modelid) {
+        return boughtLicenses.stream().filter(lic -> lic.getModelid() == modelid).findAny().orElse(null) != null;
+    }
+    
+    public String getName() {
+		return name;
+	}
+    
+    public void setName(String name) {
+		this.name = name;
+	}
 }

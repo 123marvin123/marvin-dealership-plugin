@@ -2,14 +2,19 @@ package org.marvin.dealership;
 
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
 import net.gtaun.shoebill.constant.PlayerKey;
+import net.gtaun.shoebill.constant.TextDrawAlign;
+import net.gtaun.shoebill.constant.TextDrawFont;
 import net.gtaun.shoebill.data.AngledLocation;
+import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.data.Vector3D;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Server;
+import net.gtaun.shoebill.object.Textdraw;
 import net.gtaun.shoebill.object.World;
 import net.gtaun.shoebill.resource.Plugin;
 import net.gtaun.util.event.EventManager;
+
 import org.slf4j.Logger;
 
 import java.sql.*;
@@ -41,6 +46,8 @@ public class DealershipPlugin extends Plugin {
     private BiConsumer<Player, Integer> addMoneyFunction = Player::giveMoney;
     private PlayerKey engineKey = PlayerKey.YES;
     private boolean findCarEnabled = true;
+    private Textdraw offerBoxTextdraw;
+    private List<BuyableVehicleLicense> buyableLicenses;
     @Override
     protected void onEnable() throws Throwable {
         instance = this;
@@ -54,10 +61,22 @@ public class DealershipPlugin extends Plugin {
         playerLifecycleHolder = new PlayerLifecycleHolder(eventManager);
         playerLifecycleHolder.registerClass(PlayerData.class);
         playerManager = new PlayerManager();
+        buyableLicenses = new ArrayList<>();
         loadPlayerVehicles();
         loadVehicleProviders();
-        World.get().setWorldTime(2);
-        World.get().manualEngineAndLights();
+        buyableLicenses.add(new BuyableVehicleLicense(411, 50000));
+        buyableLicenses.add(new BuyableVehicleLicense(410, 40000));
+        
+        offerBoxTextdraw = Textdraw.create(382.666717f, 164.937103f, "usebox");
+        offerBoxTextdraw.setLetterSize(0.000000f, 15.363155f);
+        offerBoxTextdraw.setTextSize(240.666687f, 0.000000f);
+        offerBoxTextdraw.setAlignment(TextDrawAlign.LEFT);
+        offerBoxTextdraw.setColor(new Color(0));
+        offerBoxTextdraw.setUseBox(true);
+        offerBoxTextdraw.setBoxColor(new Color(670054));
+        offerBoxTextdraw.setShadowSize(0);
+        offerBoxTextdraw.setOutlineSize(0);
+        offerBoxTextdraw.setFont(TextDrawFont.FONT2);
     }
 
     @Override
@@ -73,23 +92,34 @@ public class DealershipPlugin extends Plugin {
         keyList.put("pickupLocationX", provider.getPickupPosition().x);
         keyList.put("pickupLocationY", provider.getPickupPosition().y);
         keyList.put("pickupLocationZ", provider.getPickupPosition().z);
-        keyList.put("cameraLocationX", provider.getCameraViewPostion().x);
-        keyList.put("cameraLocationY", provider.getCameraViewPostion().y);
-        keyList.put("cameraLocationZ", provider.getCameraViewPostion().z);
-        keyList.put("cameraLookAtX", provider.getCameraLookAt().x);
-        keyList.put("cameraLookAtY", provider.getCameraLookAt().y);
-        keyList.put("cameraLookAtZ", provider.getCameraLookAt().z);
         keyList.put("kasse", provider.getCash());
+        keyList.put("name", provider.getName());
         StringBuilder offerList = new StringBuilder();
         for(VehicleOffer offer : provider.getOfferList()) {
-            offerList.append(offer.getModelId()).append(",").append(offer.getPrice()).append("|");
+            AngledLocation vehicleLocation = offer.getSpawnLocation();
+            offerList.append(offer.getModelId()).append(",").append(offer.getPrice()).append(",").append(vehicleLocation.x).append(",").append(vehicleLocation.y).append(",")
+                    .append(vehicleLocation.z).append(",").append(vehicleLocation.angle).append("|");
         }
-        keyList.put("offers", offerList.toString().substring(0, offerList.toString().length()-1));
+        if(offerList.toString().length() > 0)
+            keyList.put("offers", offerList.toString().substring(0, offerList.toString().length()-1));
+        else
+            keyList.put("offers", "");
         StringBuilder parkingList = new StringBuilder();
         for(AngledLocation parkingSpot : provider.getParkingList()) {
             parkingList.append(parkingSpot.x).append(",").append(parkingSpot.y).append(",").append(parkingSpot.z).append(",").append(parkingSpot.angle).append("|");
         }
-        keyList.put("parkingList", parkingList.toString().substring(0, parkingList.toString().length()-1));
+        if(parkingList.toString().length() > 0)
+            keyList.put("parkingList", parkingList.toString().substring(0, parkingList.toString().length()-1));
+        else
+            keyList.put("parkingList", "");
+        StringBuilder licenseBuilder = new StringBuilder();
+        for(BuyableVehicleLicense license : provider.getBoughtLicenses()) {
+            licenseBuilder.append(license.getModelid()).append(",").append(license.getPrice()).append("|");
+        }
+        if(licenseBuilder.toString().length() > 0)
+            keyList.put("licenses", licenseBuilder.toString().substring(0, licenseBuilder.toString().length()-1));
+        else
+            keyList.put("licenses", "");
         keyList.put("messageLog", "empty");
         StringBuilder builder = new StringBuilder();
         builder.append("UPDATE vehicleproviders SET ");
@@ -112,16 +142,17 @@ public class DealershipPlugin extends Plugin {
         try {
             ResultSet providerSet = mysqlConnection.executeQuery("SELECT * FROM vehicleproviders");
             while(providerSet.next()) {
-                VehicleProvider provider = new VehicleProvider(providerSet.getString("owner"), new Location(providerSet.getFloat("pickupLocationX"), providerSet.getFloat("pickupLocationY"), providerSet.getFloat("pickupLocationZ")),
-                        new Vector3D(providerSet.getFloat("cameraLocationX"), providerSet.getFloat("cameraLocationY"), providerSet.getFloat("cameraLocationZ")), new Vector3D(providerSet.getFloat("cameraLocationX"), providerSet.getFloat("cameraLocationY"), providerSet.getFloat("cameraLocationZ")));
+                VehicleProvider provider = new VehicleProvider(providerSet.getString("owner"), new Location(providerSet.getFloat("pickupLocationX"), providerSet.getFloat("pickupLocationY"), providerSet.getFloat("pickupLocationZ")));
                 provider.setCash(providerSet.getInt("kasse"));
                 provider.setDatabaseId(providerSet.getInt("Id"));
+                provider.setName(providerSet.getString("name"));
                 String offerList = providerSet.getString("offers");
-                if(offerList != null) {
+                if(offerList != null && !offerList.equals("")) {
                     String[] parts = offerList.split("[|]");
                     for(String part : parts) {
                         String[] offerInformation = part.split("[,]");
-                        VehicleOffer offer = new VehicleOffer(Integer.parseInt(offerInformation[0]), Integer.parseInt(offerInformation[1]));
+                        VehicleOffer offer = new VehicleOffer(Integer.parseInt(offerInformation[0]), Integer.parseInt(offerInformation[1]), Float.parseFloat(offerInformation[2]), Float.parseFloat(offerInformation[3]),
+                            Float.parseFloat(offerInformation[4]), Float.parseFloat(offerInformation[5]), provider);
                         provider.getOfferList().add(offer);
                     }
                 }
@@ -133,7 +164,7 @@ public class DealershipPlugin extends Plugin {
                     }
                 }
                 String parkingList = providerSet.getString("parkingList");
-                if(parkingList != null) {
+                if(parkingList != null && !parkingList.equals("")) {
                     String[] parts = parkingList.split("[|]");
                     for(String part : parts) {
                         String[] content = part.split("[,]");
@@ -143,6 +174,15 @@ public class DealershipPlugin extends Plugin {
                         float a = Float.parseFloat(content[3]);
                         AngledLocation parkignSpot = new AngledLocation(x, y, z, a);
                         provider.getParkingList().add(parkignSpot);
+                    }
+                }
+                String licenses = providerSet.getString("licenses");
+                if(licenses != null && !licenses.equals("")) {
+                    String[] parts = licenses.split("[|]");
+                    for(String part : parts) {
+                        String[] information = part.split("[,]");
+                        BuyableVehicleLicense license = new BuyableVehicleLicense(Integer.parseInt(information[0]), Integer.parseInt(information[1]));
+                        provider.getBoughtLicenses().add(license);
                     }
                 }
                 provider.update3DTextLabel();
@@ -161,7 +201,7 @@ public class DealershipPlugin extends Plugin {
             while(vehicleSet.next()) {
                 PlayerVehicle vehicle = new PlayerVehicle(vehicleSet.getInt("modelid"), vehicleSet.getString("owner"), vehicleSet.getFloat("spawnX"),
                         vehicleSet.getFloat("spawnY"), vehicleSet.getFloat("spawnZ"), vehicleSet.getFloat("spawnA"), vehicleSet.getInt("c1"), vehicleSet.getInt("c2"));
-                vehicle.setBoughtDate(new java.sql.Date(vehicleSet.getInt("bought")));
+                vehicle.setBoughtDate(new java.sql.Date(vehicleSet.getLong("bought")));
                 vehicle.setSellersName(vehicleSet.getString("sellerName"));
                 vehicle.setDatabaseId(vehicleSet.getInt("Id"));
                 vehicle.setPrice(vehicleSet.getInt("price"));
@@ -174,6 +214,10 @@ public class DealershipPlugin extends Plugin {
         logger.info("Es wurden " + playerVehicles.size() + " Spielerfahrzeuge geladen.");
     }
 
+    Textdraw getOfferBoxTextdraw() {
+		return offerBoxTextdraw;
+	}
+    
     public PlayerKey getEngineKey() {
         return engineKey;
     }
@@ -214,6 +258,10 @@ public class DealershipPlugin extends Plugin {
         this.addMoneyFunction = addMoneyFunction;
     }
 
+    public List<BuyableVehicleLicense> getBuyableLicenses() {
+        return buyableLicenses;
+    }
+
     public BiConsumer<Player, Integer> getAddMoneyFunction() {
         return addMoneyFunction;
     }
@@ -245,6 +293,8 @@ public class DealershipPlugin extends Plugin {
         keyList.put("spawnA", vehicle.getSpawnA());
         keyList.put("owner", vehicle.getOwner());
         keyList.put("price", vehicle.getPrice());
+        keyList.put("bought", vehicle.getBoughtDate().getTime());
+        keyList.put("sellerName", vehicle.getSellersName());
         StringBuilder builder = new StringBuilder();
         builder.append("UPDATE playervehicles SET ");
         Iterator<Map.Entry<String, Object>> it = keyList.entrySet().iterator();

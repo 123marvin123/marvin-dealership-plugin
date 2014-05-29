@@ -1,9 +1,13 @@
 package org.marvin.dealership;
 
 import net.gtaun.shoebill.common.player.PlayerLifecycleObject;
+import net.gtaun.shoebill.constant.TextDrawAlign;
+import net.gtaun.shoebill.constant.TextDrawFont;
+import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Vector3D;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.PlayerObject;
+import net.gtaun.shoebill.object.PlayerTextdraw;
 import net.gtaun.shoebill.object.SampObject;
 import net.gtaun.util.event.EventManager;
 
@@ -15,13 +19,14 @@ public class PlayerData extends PlayerLifecycleObject {
     private List<PlayerVehicle> playerVehicles;
     private int money;
     private VehicleProvider provider;
-    private boolean editingCamera;
-    private PlayerObject cameraObject;
-    private long lastCameraMove;
-    private MoveMode currentMoveMode;
-    private int udold;
-    private int lrold;
-
+    private PlayerTextdraw offerVehicleName;
+    private PlayerTextdraw offerVehiclePrice;
+    private PlayerTextdraw offerVehicleModel;
+    private PlayerTextdraw offerModelBox;
+    private PlayerTextdraw offerDelete;
+    private PlayerTextdraw offerCancel;
+    private VehicleOffer lastOffer;
+    
     public PlayerData(EventManager eventManager, Player player) {
         super(eventManager, player);
         this.player = player;
@@ -32,73 +37,130 @@ public class PlayerData extends PlayerLifecycleObject {
         return player;
     }
 
-    public List<PlayerVehicle> getPlayerVehicles() {
+    List<PlayerVehicle> getPlayerVehicles() {
         return playerVehicles;
     }
 
-    public int getMoney() {
+    int getMoney() {
         return money;
     }
 
-    public void setMoney(int money) {
+    void setMoney(int money) {
         this.money = money;
     }
 
-    public VehicleProvider getProvider() {
+    VehicleProvider getProvider() {
         return provider;
     }
 
+    PlayerTextdraw getOfferDelete() {
+		return offerDelete;
+	}
+    
+    PlayerTextdraw getOfferModelBox() {
+		return offerModelBox;
+	}
+    
+    PlayerTextdraw getOfferVehicleModel() {
+		return offerVehicleModel;
+	}
+    PlayerTextdraw getOfferVehicleName() {
+		return offerVehicleName;
+	}
+	
+	PlayerTextdraw getOfferVehiclePrice() {
+		return offerVehiclePrice;
+	}
     public void setProvider(VehicleProvider provider) {
         this.provider = provider;
+        if(provider == null) {
+        	if(offerVehicleName != null)
+        		offerVehicleName.destroy();
+        	if(offerVehiclePrice != null)
+        		offerVehiclePrice.destroy();
+        	if(offerVehicleModel != null)
+        		offerVehicleModel.destroy();
+        	if(offerModelBox != null)
+        		offerModelBox.destroy();
+        	if(offerDelete != null)
+        		offerDelete.destroy();
+        } else {
+        	if(offerVehicleName == null) {
+        		offerVehicleName = PlayerTextdraw.create(player, 311.666625f, 164.681350f, "Fahrzeugname: ");
+        		offerVehicleName.setLetterSize(0.256666f, 1.828148f);
+        		offerVehicleName.setAlignment(TextDrawAlign.CENTER);
+        		offerVehicleName.setColor(new Color(-1));
+        		offerVehicleName.setShadowSize(0);
+        		offerVehicleName.setOutlineSize(1);
+        		offerVehicleName.setBackgroundColor(new Color(51));
+        		offerVehicleName.setFont(TextDrawFont.FONT2);
+        		offerVehicleName.setProportional(true);
+        	} if(offerVehiclePrice == null) {
+        		offerVehiclePrice = PlayerTextdraw.create(player, 351.666809f, 201.599990f, "Preis: ");
+        		offerVehiclePrice.setLetterSize(0.298332f, 1.392591f);
+        		offerVehiclePrice.setAlignment(TextDrawAlign.RIGHT);
+        		offerVehiclePrice.setColor(new Color(-1));
+        		offerVehiclePrice.setShadowSize(0);
+        		offerVehiclePrice.setOutlineSize(1);
+        		offerVehiclePrice.setBackgroundColor(new Color(51));
+        		offerVehiclePrice.setFont(TextDrawFont.FONT2);
+        		offerVehiclePrice.setProportional(true);
+        		offerVehiclePrice.setSelectable(true);
+        	} if(offerVehicleModel == null) {
+        		offerVehicleModel = PlayerTextdraw.create(player, 310.999938f, 185.422302f, "Modelid: ");
+        		offerVehicleModel.setLetterSize(0.284666f, 1.280591f);
+        		offerVehicleModel.setAlignment(TextDrawAlign.CENTER);
+        		offerVehicleModel.setColor(new Color(-1));
+        		offerVehicleModel.setShadowSize(0);
+        		offerVehicleModel.setOutlineSize(1);
+        		offerVehicleModel.setBackgroundColor(new Color(51));
+        		offerVehicleModel.setFont(TextDrawFont.FONT2);
+        		offerVehicleModel.setProportional(true);
+        	} if(offerModelBox == null) {
+        		offerModelBox = PlayerTextdraw.create(player, 290.999908f, 223.011062f, "_");
+        		offerModelBox.setTextSize(50, 50);
+        		offerModelBox.setUseBox(true);
+        		offerModelBox.setBoxColor(new Color(0x000000FF));
+        		offerModelBox.setFont(TextDrawFont.MODEL_PREVIEW);
+        		offerModelBox.setPreviewModelRotation(-12, 0, 0, 0.75f);
+        	} if(offerDelete == null) {
+        		offerDelete = PlayerTextdraw.create(player, 247.333389f, 284.148437f, "Loeschen");
+        		offerDelete.setLetterSize(0.449999f, 1.600000f);
+        		offerDelete.setAlignment(TextDrawAlign.LEFT);
+        		offerDelete.setColor(new Color(-1));
+        		offerDelete.setShadowSize(0);
+        		offerDelete.setOutlineSize(1);
+        		offerDelete.setBackgroundColor(new Color(51));
+        		offerDelete.setFont(TextDrawFont.FONT2);
+        		offerDelete.setProportional(true);
+        		offerDelete.setSelectable(true);
+        	} if(offerCancel == null) {
+                offerCancel = PlayerTextdraw.create(player, 323.666687f, 284.563018f, "Abbruch");
+                offerCancel.setLetterSize(0.400000f, 1.467259f);
+                offerCancel.setAlignment(TextDrawAlign.LEFT);
+                offerCancel.setColor(new Color(-1));
+                offerCancel.setShadowSize(0);
+                offerCancel.setOutlineSize(1);
+                offerCancel.setBackgroundColor(new Color(51));
+                offerCancel.setFont(TextDrawFont.FONT2);
+                offerCancel.setProportional(true);
+                offerCancel.setSelectable(true);
+            }
+        }
     }
 
-    public PlayerObject getCameraObject() {
-        return cameraObject;
+    PlayerTextdraw getOfferCancel() {
+        return offerCancel;
     }
 
-    public boolean isEditingCamera() {
-        return editingCamera;
-    }
+    void setLastOffer(VehicleOffer offer) {
+		this.lastOffer = offer;
+	}
+	
+	VehicleOffer getLastOffer() {
+		return lastOffer;
+	}
 
-    public void setEditingCamera(boolean editingCamera) {
-        this.editingCamera = editingCamera;
-    }
-
-    public void setCameraObject(PlayerObject cameraObject) {
-        this.cameraObject = cameraObject;
-    }
-
-    public long getLastCameraMove() {
-        return lastCameraMove;
-    }
-
-    public void setLastCameraMove(long lastCameraMove) {
-        this.lastCameraMove = lastCameraMove;
-    }
-
-    public MoveMode getCurrentMoveMode() {
-        return currentMoveMode;
-    }
-
-    public int getLrold() {
-        return lrold;
-    }
-
-    public int getUdold() {
-        return udold;
-    }
-
-    public void setCurrentMoveMode(MoveMode currentMoveMode) {
-        this.currentMoveMode = currentMoveMode;
-    }
-
-    public void setLrold(int lrold) {
-        this.lrold = lrold;
-    }
-
-    public void setUdold(int udold) {
-        this.udold = udold;
-    }
 
     @Override
     protected void onInit() {
@@ -109,51 +171,4 @@ public class PlayerData extends PlayerLifecycleObject {
     protected void onDestroy() {
 
     }
-
-    public void moveCamera() {
-        lastCameraMove = System.currentTimeMillis();
-        Vector3D cameraPosition = player.getCameraPosition();
-        Vector3D cameraVector = player.getCameraFrontVector();
-        float offsetX = cameraVector.x*6000.0f;
-        float offsetY = cameraVector.y*6000.0f;
-        float offsetZ = cameraVector.z*6000.0f;
-        switch (currentMoveMode) {
-            case MOVE_FORWARD:
-                cameraObject.move(new Vector3D(cameraPosition.x+offsetX, cameraPosition.y+offsetY, cameraPosition.z+offsetZ), 10);
-            case MOVE_BACK:
-                cameraObject.move(new Vector3D(cameraPosition.x-offsetX, cameraPosition.y-offsetY, cameraPosition.z-offsetZ), 10);
-            case MOVE_LEFT:
-                cameraObject.move(new Vector3D(cameraPosition.x-offsetX, cameraPosition.y+offsetY, cameraPosition.z), 10);
-            case MOVE_RIGHT:
-                cameraObject.move(new Vector3D(cameraPosition.x+offsetX, cameraPosition.y-offsetY, cameraPosition.z), 10);
-            case MOVE_BACK_LEFT:
-                cameraObject.move(new Vector3D(cameraPosition.x+(-offsetX - offsetY), cameraPosition.y+(-offsetY + offsetX), cameraPosition.z-offsetZ), 10);
-            case MOVE_BACK_RIGHT:
-                cameraObject.move(new Vector3D(cameraPosition.x+(-offsetX + offsetY), cameraPosition.y+(-offsetY - offsetX), cameraPosition.z-offsetZ), 10);
-            case MOVE_FORWARD_LEFT:
-                cameraObject.move(new Vector3D(cameraPosition.x+(-offsetX - offsetY), cameraPosition.y+(-offsetY + offsetX), cameraPosition.z+offsetZ), 10);
-            case MOVE_FORWARD_RIGHT:
-                cameraObject.move(new Vector3D(cameraPosition.x+(-offsetX + offsetY), cameraPosition.y+(-offsetY - offsetX), cameraPosition.z+offsetZ), 10);
-        }
-    }
-
-    public void setMoveDirectionFromKeys() {
-        int ud, lr;
-        ud = player.getKeyState().getUpdownValue();
-        lr = player.getKeyState().getLeftrightValue();
-        if(lr < 0) {
-            if(ud < 0) currentMoveMode = MoveMode.MOVE_FORWARD_LEFT;
-            else if(ud > 0) currentMoveMode = MoveMode.MOVE_BACK_LEFT;
-            else currentMoveMode = MoveMode.MOVE_LEFT;
-        } else if (lr > 0) {
-            if(ud < 0) currentMoveMode = MoveMode.MOVE_FORWARD_RIGHT;
-            else if(ud > 0) currentMoveMode = MoveMode.MOVE_BACK_RIGHT;
-            else currentMoveMode = MoveMode.MOVE_RIGHT;
-        } else if(ud < 0) currentMoveMode = MoveMode.MOVE_FORWARD;
-        else if(ud > 0) currentMoveMode = MoveMode.MOVE_BACK;
-        System.out.println("New MoveMode: " + currentMoveMode.toString());
-        System.out.println("ud: " + ud);
-        System.out.println("lr: " + lr);
-    }
-
 }

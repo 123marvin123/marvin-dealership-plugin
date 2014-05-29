@@ -61,8 +61,7 @@ public class MysqlConnection {
                 stmnt.executeUpdate("CREATE TABLE IF NOT EXISTS playervehicles (Id INTEGER PRIMARY KEY AUTO_INCREMENT, owner CHAR(24), modelid INTEGER, c1 INTEGER, c2 INTEGER," +
                         "spawnX FLOAT, spawnY FLOAT, spawnZ FLOAT, spawnA FLOAT, bought BIGINT, sellerName CHAR(24), price INTEGER)");
                 stmnt.executeUpdate("CREATE TABLE IF NOT EXISTS vehicleproviders (Id INTEGER PRIMARY KEY AUTO_INCREMENT, owner CHAR(24), pickupLocationX FLOAT, " +
-                        "pickupLocationY FLOAT, pickupLocationZ FLOAT, cameraLocationX FLOAT, cameraLocationY FLOAT, cameraLocationZ FLOAT, cameraLookAtX FLOAT, " +
-                        "cameraLookAtY FLOAT, cameraLookAtZ FLOAT, offers TEXT(500), messageLog Text(700), kasse INTEGER, parkingList TEXT(500))");
+                        "pickupLocationY FLOAT, pickupLocationZ FLOAT, offers TEXT(500), messageLog Text(700), kasse INTEGER, parkingList TEXT(500), name CHAR(25), licenses TEXT(500))");
             } else {
                 DealershipPlugin.getInstance().getLoggerInstance().info("Mysql Datenbank konnte nicht erstellt werden.");
             }
@@ -75,7 +74,13 @@ public class MysqlConnection {
         try {
             if (connection != null && connection.isValid(1000)) {
                 Statement stmnt = connection.createStatement();
-                return stmnt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+                stmnt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+                try {
+                    ResultSet rs = stmnt.getGeneratedKeys();
+                    rs.next();
+                    return rs.getInt(1);
+                } catch (Exception ex) { }
+                return -1;
             }
         } catch (SQLException e) {
             e.printStackTrace();

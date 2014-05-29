@@ -2,15 +2,24 @@ package org.marvin.dealership;
 
 import net.gtaun.shoebill.common.command.Command;
 import net.gtaun.shoebill.common.command.PlayerCommandManager;
+import net.gtaun.shoebill.common.dialog.AbstractDialog;
+import net.gtaun.shoebill.common.dialog.DialogHandler;
+import net.gtaun.shoebill.common.dialog.InputDialog;
+import net.gtaun.shoebill.common.dialog.MsgboxDialog;
 import net.gtaun.shoebill.constant.PlayerKey;
+import net.gtaun.shoebill.constant.PlayerState;
+import net.gtaun.shoebill.constant.VehicleModel;
+import net.gtaun.shoebill.data.AngledLocation;
 import net.gtaun.shoebill.data.Color;
-import net.gtaun.shoebill.event.player.PlayerConnectEvent;
-import net.gtaun.shoebill.event.player.PlayerDisconnectEvent;
-import net.gtaun.shoebill.event.player.PlayerKeyStateChangeEvent;
-import net.gtaun.shoebill.event.player.PlayerUpdateEvent;
-import net.gtaun.shoebill.object.PlayerKeyState;
-import net.gtaun.util.event.EventHandler;
+import net.gtaun.shoebill.data.Radius;
+import net.gtaun.shoebill.event.player.*;
+import net.gtaun.shoebill.object.Checkpoint;
+import net.gtaun.shoebill.object.Player;
+import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.HandlerPriority;
+
+import java.sql.Date;
+import java.util.Random;
 
 /**
  * Created by Marvin on 26.05.2014.
@@ -48,38 +57,136 @@ public class PlayerManager {
             playerData.getPlayerVehicles().forEach(PlayerVehicle::destoryVehicle);
         });
 
-        DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(PlayerKeyStateChangeEvent.class, event -> {
-            if(DealershipPlugin.getInstance().getEngineKey() != null && event.getPlayer().getKeyState().isKeyPressed(DealershipPlugin.getInstance().getEngineKey())) {
-                if (event.getPlayer().getVehicle() != null) {
-                    PlayerVehicle playerVehicle = DealershipPlugin.getInstance().getPlayerVehicles().stream().filter(veh -> veh.getVehicle() == event.getPlayer().getVehicle()).findAny().orElse(null);
-                    Commands.toggleVehicleEngine(event.getPlayer(), playerVehicle, false);
-                }
-            }
-        });
-
-        DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(PlayerUpdateEvent.class, playerUpdateEvent -> {
-            PlayerData playerData = DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObject(playerUpdateEvent.getPlayer(), PlayerData.class);
-            if(playerData.isEditingCamera()) {
-                int ud, lr;
-                ud = playerUpdateEvent.getPlayer().getKeyState().getUpdownValue();
-                lr = playerUpdateEvent.getPlayer().getKeyState().getLeftrightValue();
-                System.out.println("New ud: " + ud + " old ud: " + playerData.getUdold());
-                System.out.println("New lr: " + lr + " old lr: " + playerData.getLrold());
-                if ((System.currentTimeMillis() - playerData.getLastCameraMove()) > 100 && playerData.getCurrentMoveMode() == MoveMode.MOVE_FORWARD) {
-                    playerData.moveCamera();
-                }
-                if (playerData.getUdold() != ud || playerData.getLrold() != lr) {
-                    if ((playerData.getUdold() != 0 || playerData.getLrold() != 0) && ud == 0 && lr == 0) {
-                        playerData.getCameraObject().stop();
-                        playerData.setCurrentMoveMode(MoveMode.NONE);
-                    } else {
-                        playerData.setMoveDirectionFromKeys();
-                        playerData.moveCamera();
+        DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(PlayerClickPlayerTextDrawEvent.class, (e) -> {
+        	PlayerData playerData = DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObject(e.getPlayer(), PlayerData.class);
+            if(e.getPlayerTextdraw() != null) {
+                if (playerData.getLastOffer() != null) {
+                    playerData.getOfferDelete().hide();
+                    playerData.getOfferModelBox().hide();
+                    playerData.getOfferVehicleModel().hide();
+                    playerData.getOfferVehicleName().hide();
+                    playerData.getOfferVehiclePrice().hide();
+                    playerData.getOfferCancel().hide();
+                    DealershipPlugin.getInstance().getOfferBoxTextdraw().hide(e.getPlayer());
+                    e.getPlayer().cancelSelectTextDraw();
+                    if (e.getPlayerTextdraw() == playerData.getOfferVehiclePrice()) {
+                        InputDialog.create(e.getPlayer(), DealershipPlugin.getInstance().getEventManagerInstance())
+                                .buttonOk("Ändern")
+                                .buttonCancel("Abbrechen")
+                                .caption("Preis ändern von " + VehicleModel.getName(playerData.getLastOffer().getModelId()))
+                                .message("Gebe nun den neuen Preis für " + VehicleModel.getName(playerData.getLastOffer().getModelId()) + " ein." +
+                                        "\nAktueller Preis: " + playerData.getLastOffer().getPrice() + "$")
+                                .onClickCancel((event) -> playerData.setLastOffer(null))
+                                .onClickOk((inputDialog, s) -> {
+                                    try {
+                                        int price = Integer.parseInt(s);
+                                        if (price < 1) {
+                                            e.getPlayer().sendMessage(Color.RED, "* Der Preis darf nicht unter 1$ liegen!");
+                                            inputDialog.show();
+                                        } else {
+                                            playerData.getLastOffer().setPrice(price);
+                                            playerData.getLastOffer().updateLabel();
+                                            e.getPlayer().sendMessage(Color.ORANGE, "* Der Preis von " + VehicleModel.getName(playerData.getLastOffer().getModelId()) + " wurde auf " + price + "$ gesetzt.");
+                                            playerData.setLastOffer(null);
+                                        }
+                                    } catch (Exception ex) {
+                                        e.getPlayer().sendMessage(Color.RED, "* Bitte nur Zahlen eingeben!");
+                                        inputDialog.show();
+                                    }
+                                })
+                                .build()
+                                .show();
+                    } else if (e.getPlayerTextdraw() == playerData.getOfferDelete()) {
+                        MsgboxDialog.create(e.getPlayer(), DealershipPlugin.getInstance().getEventManagerInstance())
+                                .message("Bist du dir sicher, dass du " + VehicleModel.getName(playerData.getLastOffer().getModelId()) + " aus dem Sortiment entfernen möchdest?" +
+                                        "\n" + Color.RED.toEmbeddingString() + "Es gibt kein zurück mehr!")
+                                .buttonOk("Löschen")
+                                .buttonCancel("Abbrechen")
+                                .onClickOk(msgboxDialog -> {
+                                    playerData.getLastOffer().getProvider().getOfferList().remove(playerData.getLastOffer());
+                                    playerData.getLastOffer().destroy();
+                                    e.getPlayer().sendMessage(Color.GREEN, "* Das Fahrzeug " + VehicleModel.getName(playerData.getLastOffer().getModelId()) + " wurde aus dem Sortiment entfernt.");
+                                    playerData.setLastOffer(null);
+                                })
+                                .build()
+                                .show();
+                    } else if (e.getPlayerTextdraw() == playerData.getOfferCancel()) {
+                        e.getPlayer().sendMessage(Color.ORANGE, "* Du hast den Vorgang abgebrochen.");
                     }
                 }
-                playerData.setLrold(lr);
-                playerData.setUdold(ud);
             }
         });
+        
+        DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(PlayerStateChangeEvent.class, event -> {
+            if(event.getOldState() != PlayerState.DRIVER && event.getPlayer().getState() == PlayerState.DRIVER) {
+                VehicleOffer offer = null;
+                Vehicle playerVehicle = event.getPlayer().getVehicle();
+                for(VehicleProvider provider : DealershipPlugin.getInstance().getVehicleProviderList()) {
+                    offer = provider.hasVehicle(playerVehicle);
+                    if(offer != null)
+                        break;
+                }
+                PlayerData playerData = DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObject(event.getPlayer(), PlayerData.class);
+                if(offer != null && offer.getProvider() != playerData.getProvider()) {
+                    if (offer.getProvider().getParkingList().size() < 1)
+                        event.getPlayer().sendMessage(Color.RED, "* Dieses Autohaus kann nicht benutzt werden, da es noch keine Parkplätze besitzt.");
+                    else {
+                        event.getPlayer().toggleControllable(false);
+                        event.getPlayer().getVehicle().getState().setEngine(0);
+                        final VehicleOffer finalOffer = offer;
+                        MsgboxDialog.create(event.getPlayer(), DealershipPlugin.getInstance().getEventManagerInstance())
+                                .message("Möchdest du dieses Fahrzeug erwerben?\nFahrzeugname: " + VehicleModel.getName(offer.getModelId()) + "\nFahrzeugtyp: " + VehicleModel.getType(offer.getModelId()) +
+                                        "\nPreis: " + offer.getPrice() + "$")
+                                .buttonCancel("Aussteigen")
+                                .buttonOk("Kaufen")
+                                .onClickCancel(abstractDialog -> {
+                                    event.getPlayer().removeFromVehicle();
+                                    event.getPlayer().toggleControllable(true);
+                                })
+                                .onClickOk(msgboxDialog -> {
+                                    if (DealershipPlugin.getInstance().getMoneyGetter().apply(event.getPlayer()) >= finalOffer.getPrice()) {
+                                        Random rnd = new Random();
+                                        event.getPlayer().removeFromVehicle();
+                                        event.getPlayer().toggleControllable(true);
+                                        int index = rnd.nextInt(finalOffer.getProvider().getParkingList().size());
+                                        AngledLocation parkingSpot = finalOffer.getProvider().getParkingList().get(index);
+                                        PlayerVehicle newPlayerVehicle = new PlayerVehicle(finalOffer.getModelId(), event.getPlayer().getName(), parkingSpot.x, parkingSpot.y, parkingSpot.z, parkingSpot.angle, 1, 1);
+                                        playerData.getPlayerVehicles().add(newPlayerVehicle);
+                                        DealershipPlugin.getInstance().getPlayerVehicles().add(newPlayerVehicle);
+                                        newPlayerVehicle.spawnVehicle();
+                                        newPlayerVehicle.setDoors(true);
+                                        int databaseId = DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("INSERT INTO playervehicles (owner, modelid) VALUES ('" + event.getPlayer().getName() + "', '" + finalOffer.getModelId() + "')");
+                                        newPlayerVehicle.setDatabaseId(databaseId);
+                                        newPlayerVehicle.setPrice(finalOffer.getPrice());
+                                        newPlayerVehicle.setBoughtDate(new Date(System.currentTimeMillis()));
+                                        newPlayerVehicle.setSellersName(finalOffer.getProvider().getOwner());
+                                        finalOffer.getProvider().setCash(finalOffer.getProvider().getCash() + finalOffer.getPrice());
+                                        DealershipPlugin.getInstance().getAddMoneyFunction().accept(event.getPlayer(), -finalOffer.getPrice());
+                                        event.getPlayer().sendMessage(Color.GREEN, "* Du hast dir erfolgreich für " + finalOffer.getPrice() + "$ eine/n " + VehicleModel.getName(finalOffer.getModelId()) + " gekauft.");
+                                        event.getPlayer().sendMessage(Color.GREEN, "* Dein Fahrzeug steht nun an einem Parkplatz des Autohauses. Es wurde Rot auf der Karte martkiert.");
+                                        event.getPlayer().sendMessage(Color.GREEN, "* Hilfe zu deinem Fahrzeug findest du unter: /phelp");
+                                        event.getPlayer().setCheckpoint(new Checkpoint() {
+                                            @Override
+                                            public Radius getLocation() {
+                                                return new Radius(parkingSpot, 5);
+                                            }
+
+                                            @Override
+                                            public void onEnter(Player player) {
+                                                player.disableCheckpoint();
+                                            }
+                                        });
+                                    } else {
+                                        event.getPlayer().sendMessage(Color.RED, "* Du hast leider nicht genug Geld, um dieses Fahrzeug zu erwerben.");
+                                        event.getPlayer().sendMessage(Color.RED, "* Du brauchst " + finalOffer.getPrice() + "$ um dir eine/n " + VehicleModel.getName(finalOffer.getModelId()) + " zu kaufen");
+                                        msgboxDialog.show();
+                                    }
+                                })
+                                .build()
+                                .show();
+                    }
+                }
+            }
+         });
     }
 }
