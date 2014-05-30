@@ -29,7 +29,7 @@ import java.util.function.Function;
 public class DealershipPlugin extends Plugin {
     private static DealershipPlugin instance;
 
-    public static DealershipPlugin getInstance() {
+    static DealershipPlugin getInstance() {
         if(instance == null)
             instance = new DealershipPlugin();
         return instance;
@@ -203,6 +203,7 @@ public class DealershipPlugin extends Plugin {
                 vehicle.setSellersName(vehicleSet.getString("sellerName"));
                 vehicle.setDatabaseId(vehicleSet.getInt("Id"));
                 vehicle.setPrice(vehicleSet.getInt("price"));
+                vehicle.setComponentsString(vehicleSet.getString("components"));
                 playerVehicles.add(vehicle);
             }
         } catch (Exception ex) {
@@ -215,32 +216,24 @@ public class DealershipPlugin extends Plugin {
     Textdraw getOfferBoxTextdraw() {
 		return offerBoxTextdraw;
 	}
-    
-    public PlayerKey getEngineKey() {
-        return engineKey;
-    }
-
-    public void setEngineKey(PlayerKey engineKey) {
-        this.engineKey = engineKey;
-    }
 
     private void savePlayerVehicles() {
         playerVehicles.forEach(this::savePlayerVehicle);
     }
 
-    public Logger getLoggerInstance() {
+    Logger getLoggerInstance() {
         return logger;
     }
 
-    public EventManager getEventManagerInstance() {
+    EventManager getEventManagerInstance() {
         return eventManager;
     }
 
-    public List<PlayerVehicle> getPlayerVehicles() {
+    List<PlayerVehicle> getPlayerVehicles() {
         return playerVehicles;
     }
 
-    public PlayerLifecycleHolder getPlayerLifecycleHolder() {
+    PlayerLifecycleHolder getPlayerLifecycleHolder() {
         return playerLifecycleHolder;
     }
 
@@ -248,7 +241,7 @@ public class DealershipPlugin extends Plugin {
         this.moneyGetter = moneyGetter;
     }
 
-    public List<VehicleProvider> getVehicleProviderList() {
+    List<VehicleProvider> getVehicleProviderList() {
         return vehicleProviderList;
     }
 
@@ -260,11 +253,11 @@ public class DealershipPlugin extends Plugin {
         return buyableLicenses;
     }
 
-    public BiConsumer<Player, Integer> getAddMoneyFunction() {
+    BiConsumer<Player, Integer> getAddMoneyFunction() {
         return addMoneyFunction;
     }
 
-    public Function<Player, Integer> getMoneyGetter() {
+    Function<Player, Integer> getMoneyGetter() {
         return moneyGetter;
     }
 
@@ -276,11 +269,11 @@ public class DealershipPlugin extends Plugin {
         this.findCarEnabled = findCarEnabled;
     }
 
-    public MysqlConnection getMysqlConnection() {
+    MysqlConnection getMysqlConnection() {
         return mysqlConnection;
     }
 
-    public void savePlayerVehicle(PlayerVehicle vehicle) {
+    void savePlayerVehicle(PlayerVehicle vehicle) {
         Map<String, Object> keyList = new HashMap<>();
         keyList.put("modelid", vehicle.getModel());
         keyList.put("c1", vehicle.getColor1());
@@ -293,6 +286,14 @@ public class DealershipPlugin extends Plugin {
         keyList.put("price", vehicle.getPrice());
         keyList.put("bought", vehicle.getBoughtDate().getTime());
         keyList.put("sellerName", vehicle.getSellersName());
+        StringBuilder components = new StringBuilder();
+        for(int component : vehicle.getComponents()) {
+            components.append(component).append(",");
+        }
+        if(components.toString().length() > 0)
+            keyList.put("components", components.toString().substring(0, components.toString().length()-1));
+        else
+            keyList.put("components", "");
         StringBuilder builder = new StringBuilder();
         builder.append("UPDATE playervehicles SET ");
         Iterator<Map.Entry<String, Object>> it = keyList.entrySet().iterator();

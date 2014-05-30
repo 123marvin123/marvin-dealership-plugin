@@ -3,10 +3,7 @@ package org.marvin.dealership;
 import net.gtaun.shoebill.data.AngledLocation;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Location;
-import net.gtaun.shoebill.data.Vector3D;
-import net.gtaun.shoebill.object.Label;
-import net.gtaun.shoebill.object.Pickup;
-import net.gtaun.shoebill.object.Vehicle;
+import net.gtaun.shoebill.object.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +11,7 @@ import java.util.List;
 /**
  * Created by Marvin on 27.05.2014.
  */
-public class VehicleProvider {
+public class VehicleProvider implements Destroyable {
     private String owner;
     private List<VehicleOffer> offerList;
     private List<VehicleBoughtLogEntry> boughtLogEntryList;
@@ -26,6 +23,8 @@ public class VehicleProvider {
     private int databaseId;
     private String name;
     private List<BuyableVehicleLicense> boughtLicenses;
+    private boolean isLabelShown;
+    private List<PlayerLabel> parkingSpotLabels;
 
     public VehicleProvider(String owner, Location pickupPosition) {
         this.owner = owner;
@@ -35,6 +34,7 @@ public class VehicleProvider {
         this.parkingList = new ArrayList<>();
         this.pickup = Pickup.create(1275, 1, pickupPosition);
         this.boughtLicenses = new ArrayList<>();
+        this.parkingSpotLabels = new ArrayList<>();
         update3DTextLabel();
     }
 
@@ -45,95 +45,122 @@ public class VehicleProvider {
     		informationLabel.update(Color.BEIGE, "|-- Autohändler --|\nName: " + name + "\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size());
     }
 
-    public String getOwner() {
+    List<PlayerLabel> getParkingSpotLabels() {
+        return parkingSpotLabels;
+    }
+
+    boolean isLabelShown() {
+        return isLabelShown;
+    }
+
+    void setLabelShown(boolean isLabelShown) {
+        this.isLabelShown = isLabelShown;
+    }
+
+    String getOwner() {
         return owner;
     }
 
-    public void setOwner(String owner) {
+    void setOwner(String owner) {
         this.owner = owner;
     }
 
-    public List<VehicleOffer> getOfferList() {
+    List<VehicleOffer> getOfferList() {
         return offerList;
     }
 
-    public void setOfferList(List<VehicleOffer> offerList) {
+    void setOfferList(List<VehicleOffer> offerList) {
         this.offerList = offerList;
     }
 
-    public List<VehicleBoughtLogEntry> getBoughtLogEntryList() {
+    List<VehicleBoughtLogEntry> getBoughtLogEntryList() {
         return boughtLogEntryList;
     }
 
-    public void setBoughtLogEntryList(List<VehicleBoughtLogEntry> boughtLogEntryList) {
+    void setBoughtLogEntryList(List<VehicleBoughtLogEntry> boughtLogEntryList) {
         this.boughtLogEntryList = boughtLogEntryList;
     }
 
-    public List<AngledLocation> getParkingList() {
+    List<AngledLocation> getParkingList() {
         return parkingList;
     }
 
-    public void setParkingList(List<AngledLocation> parkingList) {
+    void setParkingList(List<AngledLocation> parkingList) {
         this.parkingList = parkingList;
     }
 
-    public int getCash() {
+    int getCash() {
         return cash;
     }
 
-    public void setCash(int cash) {
+    void setCash(int cash) {
         this.cash = cash;
     }
 
-    public Location getPickupPosition() {
+    Location getPickupPosition() {
         return pickupPosition;
     }
 
-    public void setPickupPosition(Location pickupPosition) {
+    void setPickupPosition(Location pickupPosition) {
         this.pickupPosition = pickupPosition;
     }
 
-    public Label getInformationLabel() {
+    Label getInformationLabel() {
         return informationLabel;
     }
 
-    public void setInformationLabel(Label informationLabel) {
+    void setInformationLabel(Label informationLabel) {
         this.informationLabel = informationLabel;
     }
 
-    public Pickup getPickup() {
+    Pickup getPickup() {
         return pickup;
     }
 
-    public void setPickup(Pickup pickup) {
+    void setPickup(Pickup pickup) {
         this.pickup = pickup;
     }
 
-    public int getDatabaseId() {
+    int getDatabaseId() {
         return databaseId;
     }
 
-    public void setDatabaseId(int databaseId) {
+    void setDatabaseId(int databaseId) {
         this.databaseId = databaseId;
     }
 
-    public List<BuyableVehicleLicense> getBoughtLicenses() {
+    List<BuyableVehicleLicense> getBoughtLicenses() {
         return boughtLicenses;
     }
 
-    public VehicleOffer hasVehicle(Vehicle vehicle) {
+    VehicleOffer hasVehicle(Vehicle vehicle) {
         return offerList.stream().filter(voffer -> voffer.getPreview() == vehicle).findAny().orElse(null);
     }
 
-    public boolean hasLicense(int modelid) {
+    boolean hasLicense(int modelid) {
         return boughtLicenses.stream().filter(lic -> lic.getModelid() == modelid).findAny().orElse(null) != null;
     }
-    
-    public String getName() {
+
+    String getName() {
 		return name;
 	}
-    
-    public void setName(String name) {
+
+    void setName(String name) {
 		this.name = name;
 	}
+
+    @Override
+    public void destroy() {
+        offerList.forEach(VehicleOffer::destroy);
+        getBoughtLogEntryList().clear();
+        parkingList.clear();
+        boughtLicenses.clear();
+        pickup.destroy();
+        informationLabel.destroy();
+    }
+
+    @Override
+    public boolean isDestroyed() {
+        return informationLabel.isDestroyed() || pickup.isDestroyed();
+    }
 }

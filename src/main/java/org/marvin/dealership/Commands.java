@@ -4,14 +4,12 @@ import net.gtaun.shoebill.common.command.Command;
 import net.gtaun.shoebill.common.dialog.*;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.*;
-import net.gtaun.shoebill.object.Checkpoint;
-import net.gtaun.shoebill.object.Player;
-import net.gtaun.shoebill.object.PlayerObject;
-import net.gtaun.shoebill.object.Vehicle;
+import net.gtaun.shoebill.object.*;
 
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.function.BooleanSupplier;
 
 import static net.gtaun.shoebill.common.dialog.InputDialog.ClickOkHandler;
 
@@ -213,7 +211,12 @@ public class Commands {
                                         })
                                         .build());
                             });
-                            models.show();
+                            if(models.getItems().size() > 0)
+                                models.show();
+                            else {
+                                player.sendMessage(Color.RED, "* Dein Autohaus besitzt keine Angebote.");
+                                e.getCurrentDialog().show();
+                            }
                         })
                         .item("Parkplätze", (e) -> {
                             ListDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
@@ -235,7 +238,7 @@ public class Commands {
                                             return (int) (loc.distance(o1) - loc.distance(o2));
                                         });
                                         for (AngledLocation location : playerData.getProvider().getParkingList()) {
-                                            parkList.addItem("Parkplatz - Distanz: " + location.distance(player.getLocation()), (clickEvent) -> player.setCheckpoint(new Checkpoint() {
+                                            parkList.addItem("Parkplatz - Distanz: " + location.distance(player.getLocation()) + " - ID: " + playerData.getProvider().getParkingList().indexOf(location), (clickEvent) -> player.setCheckpoint(new Checkpoint() {
                                                 @Override
                                                 public Radius getLocation() {
                                                     return new Radius(location, 5);
@@ -258,7 +261,7 @@ public class Commands {
                                                 .caption("Parkplatz löschen")
                                                 .buttonOk("Löschen")
                                                 .buttonCancel("Zurück")
-                                                .parentDialog(e.getCurrentDialog())
+                                                .parentDialog(event.getCurrentDialog())
                                                 .onClickCancel(AbstractDialog::showParentDialog)
                                                 .build();
                                         playerData.getProvider().getParkingList().sort((o1, o2) -> {
@@ -267,7 +270,7 @@ public class Commands {
                                         });
                                         for (AngledLocation location : playerData.getProvider().getParkingList()) {
                                             float distance = location.distance(player.getLocation());
-                                            parkList.addItem("Parkplatz - Distanz: " + distance, (parkplatzEvent) -> {
+                                            parkList.addItem("Parkplatz - Distanz: " + distance + " - ID: " + playerData.getProvider().getParkingList().indexOf(location), (parkplatzEvent) -> {
                                                 MsgboxDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
                                                         .caption("Parkplatz wirklich löschen?")
                                                         .message("Bist du dir sicher, dass du den Parkplatz mit der aktuellen Distanz von\n" + distance + " löschen möchdest?")
@@ -279,6 +282,13 @@ public class Commands {
                                                             playerData.getProvider().getParkingList().remove(location);
                                                             player.sendMessage(Color.GREEN, "* Der Parkplatz wurde erfolgreich gelöscht.");
                                                             event.getCurrentDialog().show();
+                                                            if(playerData.getProvider().isLabelShown()) {
+                                                                playerData.getProvider().getParkingSpotLabels().forEach(PlayerLabel::destroy);
+                                                                playerData.getProvider().getParkingSpotLabels().clear();
+                                                                playerData.getProvider().getParkingList().forEach(ploc -> {
+                                                                    playerData.getProvider().getParkingSpotLabels().add(PlayerLabel.create(player, "|-- Parkplatz --|\nID: " + playerData.getProvider().getParkingList().indexOf(ploc), Color.GREEN, ploc, 20, false));
+                                                                });
+                                                            }
                                                         })
                                                         .build()
                                                         .show();
@@ -294,6 +304,25 @@ public class Commands {
                                         player.sendMessage(Color.ORANGE, "* Fahre nun bitte zu der Position, wo der Parkplatz erstellt werden soll.");
                                         player.sendMessage(Color.ORANGE, "* Wenn du an der richtigen Stelle stehst, gebe bitte /addparkplatz ein.");
                                     })
+                                    .item(ListDialogItemSwitch.create()
+                                            .statusSupplier(() -> playerData.getProvider().isLabelShown())
+                                            .switchColor(Color.GREEN, Color.RED)
+                                            .switchText("AN", "AUS")
+                                            .itemText("Parkplatzmarkierugen")
+                                            .onSelect((listDialogItem, o) -> {
+                                                if(playerData.getProvider().isLabelShown()) {
+                                                    playerData.getProvider().setLabelShown(false);
+                                                    playerData.getProvider().getParkingSpotLabels().forEach(PlayerLabel::destroy);
+                                                    listDialogItem.getCurrentDialog().show();
+                                                } else {
+                                                    playerData.getProvider().setLabelShown(true);
+                                                    playerData.getProvider().getParkingList().forEach(location -> {
+                                                        playerData.getProvider().getParkingSpotLabels().add(PlayerLabel.create(player, "|-- Parkplatz --|\nID: " + playerData.getProvider().getParkingList().indexOf(location), Color.GREEN, location, 20, false));
+                                                    });
+                                                    listDialogItem.getCurrentDialog().show();
+                                                }
+                                            })
+                                            .build())
                                     .build()
                                     .show();
                         })
@@ -461,12 +490,15 @@ public class Commands {
                                                                             .onClickCancel(AbstractDialog::showParentDialog)
                                                                             .onClickOk(msgboxDialog -> {
                                                                                 if(DealershipPlugin.getInstance().getMoneyGetter().apply(player) >=  license.getPrice()/4) {
-                                                                                    AngledLocation parkingSpot = playerData.getProvider().getParkingList().get(rnd.nextInt(playerData.getProvider().getParkingList().size()));
-                                                                                    VehicleOffer offer = new VehicleOffer(license.getModelid(), price, parkingSpot.x, parkingSpot.y, parkingSpot.z, parkingSpot.angle, playerData.getProvider());
-                                                                                    playerData.getProvider().getOfferList().add(offer);
-                                                                                    player.setVehicle(offer.getPreview(), 0);
-                                                                                    DealershipPlugin.getInstance().getAddMoneyFunction().accept(player, -(license.getPrice()/4));
-                                                                                    player.sendMessage(Color.GREEN, "* Fahre nun zu der Position, an der das Fahrzeug sein soll und benutze /ahsave");
+                                                                                    if(playerData.getProvider().getParkingList().size() < 1) player.sendMessage(Color.RED, "* Dein Autohaus besitzt leider noch keine Parkplätze.");
+                                                                                    else {
+                                                                                        AngledLocation parkingSpot = playerData.getProvider().getParkingList().get(rnd.nextInt(playerData.getProvider().getParkingList().size()));
+                                                                                        VehicleOffer offer = new VehicleOffer(license.getModelid(), price, parkingSpot.x, parkingSpot.y, parkingSpot.z, parkingSpot.angle, playerData.getProvider());
+                                                                                        playerData.getProvider().getOfferList().add(offer);
+                                                                                        player.setVehicle(offer.getPreview(), 0);
+                                                                                        DealershipPlugin.getInstance().getAddMoneyFunction().accept(player, -(license.getPrice() / 4));
+                                                                                        player.sendMessage(Color.GREEN, "* Fahre nun zu der Position, an der das Fahrzeug sein soll und benutze /ahsave");
+                                                                                    }
                                                                                 } else
                                                                                     player.sendMessage(Color.RED, "* Du hast leider nicht genug Geld um dir ein Vorstellungsmodell von dem Fahrzeug '" + VehicleModel.getName(license.getModelid()) + "' zu erwerben.");
                                                                             })
@@ -632,6 +664,29 @@ public class Commands {
                                     .build()
                                     .show();
                         })
+                        .item(Color.CRIMSON.toEmbeddingString() + "Autohaus löschen", (e) -> {
+                            InputDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
+                                    .caption("Autohaus löschen")
+                                    .buttonOk("Löschen")
+                                    .buttonCancel("Zurück")
+                                    .message("Gebe nun bitte den Namen deines Autohauses ein, um zu bestätigen,\ndass du dein Autohaus löschen möchtest.\nName: " + playerData.getProvider().getName())
+                                    .parentDialog(e.getCurrentDialog())
+                                    .onClickCancel(AbstractDialog::showParentDialog)
+                                    .onClickOk((inputDialog, s) -> {
+                                        if (!s.equals(playerData.getProvider().getName())) {
+                                            player.sendMessage(Color.RED, "* Der eingegebene Name stimmt nicht mit dem aktuellen überein.");
+                                            inputDialog.showParentDialog();
+                                        } else {
+                                            DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("DELETE FROM vehicleproviders WHERE Id = '" + playerData.getProvider().getDatabaseId() + "'");
+                                            playerData.getProvider().destroy();
+                                            DealershipPlugin.getInstance().getVehicleProviderList().remove(playerData.getProvider());
+                                            playerData.setProvider(null);
+                                            player.sendMessage(Color.GREEN, "* Dein Autohaus wurde erfolgreich gelöscht.");
+                                        }
+                                    })
+                                    .build()
+                                    .show();
+                        })
                         .build()
                         .show();
             }
@@ -673,6 +728,7 @@ public class Commands {
                                             provider.setDatabaseId(DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("INSERT INTO vehicleproviders (owner) VALUES ('" + pl.getName() + "')"));
                                             provider.update3DTextLabel();
                                             externPlayerData.setProvider(provider);
+                                            DealershipPlugin.getInstance().getVehicleProviderList().add(provider);
                                             pl.sendMessage(Color.GREEN, "* Dir wurde soeben ein Autohaus mit dem Namen '" + s + "' zugewiesen.");
                                             pl.sendMessage(Color.GREEN, "* Die Position wurde dir Rot auf der Karte markiert.");
                                             pl.setCheckpoint(new Checkpoint() {
@@ -702,6 +758,27 @@ public class Commands {
     }
 
     @Command
+    public boolean ahfind(Player player) {
+        PlayerData playerData = DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObject(player, PlayerData.class);
+        if(playerData.getProvider() == null) player.sendMessage(Color.RED, "* Du besitzt kein Autohaus!");
+        else {
+            player.setCheckpoint(new Checkpoint() {
+                @Override
+                public Radius getLocation() {
+                    return new Radius(playerData.getProvider().getPickupPosition(), 3);
+                }
+
+                @Override
+                public void onEnter(Player player) {
+                    player.disableCheckpoint();
+                }
+            });
+            player.sendMessage(Color.ORANGE, "* Dein Autohaus wurde auf der Karte Rot markiert. (Distanz: " + player.getLocation().distance(playerData.getProvider().getPickupPosition()) + ")");
+        }
+        return true;
+    }
+
+    @Command
     public boolean addparkplatz(Player player) {
         PlayerData playerData = DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObject(player, PlayerData.class);
         if(playerData.getProvider() == null) player.sendMessage(Color.RED, "* Du besitzt kein Autohaus!");
@@ -721,6 +798,11 @@ public class Commands {
                                 else {
                                     playerData.getProvider().getParkingList().add(player.getVehicle().getLocation());
                                     player.sendMessage(Color.GREEN, "* Der Parkplatz wurde erfolgreich registriert.");
+                                    if(playerData.getProvider().isLabelShown()) {
+                                        playerData.getProvider().getParkingSpotLabels().forEach(PlayerLabel::destroy);
+                                        playerData.getProvider().getParkingSpotLabels().clear();
+                                        playerData.getProvider().getParkingList().forEach(ploc -> playerData.getProvider().getParkingSpotLabels().add(PlayerLabel.create(player, "|-- Parkplatz --|\nID: " + playerData.getProvider().getParkingList().indexOf(ploc), Color.GREEN, ploc, 20, false)));
+                                    }
                                 }
                             })
                             .build()

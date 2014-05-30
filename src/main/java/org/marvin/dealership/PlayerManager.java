@@ -1,21 +1,20 @@
 package org.marvin.dealership;
 
-import net.gtaun.shoebill.common.command.Command;
 import net.gtaun.shoebill.common.command.PlayerCommandManager;
-import net.gtaun.shoebill.common.dialog.AbstractDialog;
-import net.gtaun.shoebill.common.dialog.DialogHandler;
 import net.gtaun.shoebill.common.dialog.InputDialog;
 import net.gtaun.shoebill.common.dialog.MsgboxDialog;
-import net.gtaun.shoebill.constant.PlayerKey;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.AngledLocation;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Radius;
 import net.gtaun.shoebill.event.player.*;
+import net.gtaun.shoebill.event.vehicle.VehicleModEvent;
+import net.gtaun.shoebill.event.vehicle.VehicleResprayEvent;
 import net.gtaun.shoebill.object.Checkpoint;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
+import net.gtaun.util.event.EventHandler;
 import net.gtaun.util.event.HandlerPriority;
 
 import java.sql.Date;
@@ -47,6 +46,16 @@ public class PlayerManager {
                 if(playerVehicle.getOwner().equals(event.getPlayer().getName())) {
                     playerData.getPlayerVehicles().add(playerVehicle);
                     playerVehicle.spawnVehicle();
+                    if(playerVehicle.getComponentsString() != null) {
+                        String[] splits = playerVehicle.getComponentsString().split("[,]");
+                        for (String split : splits) {
+                            try {
+                                int component = Integer.parseInt(split);
+                                playerVehicle.getVehicle().getComponent().add(component);
+                            } catch (Exception ignored) {}
+                        }
+                    }
+                    playerVehicle.refreshComponentList();
                 }
             });
             playerData.setProvider(DealershipPlugin.getInstance().getVehicleProviderList().stream().filter(provider -> provider.getOwner().equals(playerData.getPlayer().getName())).findAny().orElse(null));
@@ -116,7 +125,30 @@ public class PlayerManager {
                 }
             }
         });
-        
+
+        DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(VehicleModEvent.class, vehicleModEvent -> {
+            Player playerInVehicle = Player.getHumans().stream().filter(player -> player.getVehicle() != null && player.getVehicle() == vehicleModEvent.getVehicle()).findAny().orElse(null);
+            if(playerInVehicle != null) {
+                PlayerData playerData = DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObject(playerInVehicle, PlayerData.class);
+                PlayerVehicle playerVehicle = playerData.getPlayerVehicles().stream().filter(veh -> veh.getVehicle() != null && veh.getVehicle() == vehicleModEvent.getVehicle()).findAny().orElse(null);
+                if(playerVehicle != null) {
+                    playerVehicle.refreshComponentList();
+                }
+            }
+        });
+
+        DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(VehicleResprayEvent.class, vehicleResprayEvent -> {
+            Player playerInVehicle = Player.getHumans().stream().filter(player -> player.getVehicle() != null && player.getVehicle() == vehicleResprayEvent.getVehicle()).findAny().orElse(null);
+            if(playerInVehicle != null) {
+                PlayerData playerData = DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObject(playerInVehicle, PlayerData.class);
+                PlayerVehicle playerVehicle = playerData.getPlayerVehicles().stream().filter(veh -> veh.getVehicle() != null && veh.getVehicle() == vehicleResprayEvent.getVehicle()).findAny().orElse(null);
+                if(playerVehicle != null) {
+                    playerVehicle.setColor1(vehicleResprayEvent.getColor1());
+                    playerVehicle.setColor2(vehicleResprayEvent.getColor2());
+                }
+            }
+        });
+
         DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(PlayerStateChangeEvent.class, event -> {
             if(event.getOldState() != PlayerState.DRIVER && event.getPlayer().getState() == PlayerState.DRIVER) {
                 VehicleOffer offer = null;
