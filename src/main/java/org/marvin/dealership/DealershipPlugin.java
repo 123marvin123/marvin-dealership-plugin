@@ -64,8 +64,6 @@ public class DealershipPlugin extends Plugin {
         buyableLicenses = new ArrayList<>();
         loadPlayerVehicles();
         loadVehicleProviders();
-        buyableLicenses.add(new BuyableVehicleLicense(411, 50000));
-        buyableLicenses.add(new BuyableVehicleLicense(410, 40000));
         
         offerBoxTextdraw = Textdraw.create(382.666717f, 164.937103f, "usebox");
         offerBoxTextdraw.setLetterSize(0.000000f, 15.363155f);

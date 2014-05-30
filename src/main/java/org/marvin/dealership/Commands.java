@@ -13,6 +13,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Random;
 
+import static net.gtaun.shoebill.common.dialog.InputDialog.ClickOkHandler;
+
 /**
  * Created by Marvin on 26.05.2014.
  */
@@ -529,9 +531,172 @@ public class Commands {
                                     .build()
                                     .show();
                         })
+                        .item("Name ändern", (e) -> {
+                            InputDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
+                                    .caption("Name ändern")
+                                    .buttonOk("Ändern")
+                                    .buttonCancel("Zurück")
+                                    .message("Bitte gebe nun den neuen Namen für dein Autohaus ein.\nAktueller Name: " + playerData.getProvider().getName())
+                                    .parentDialog(e.getCurrentDialog())
+                                    .onClickCancel(AbstractDialog::showParentDialog)
+                                    .onClickOk((inputDialog, s) -> {
+                                        if(s.length() < 1 || s.length() > 24) {
+                                            player.sendMessage(Color.RED, "* Bitte max. 24 Zeichen eingeben. (Mind. 1)");
+                                            inputDialog.show();
+                                        } else {
+                                            playerData.getProvider().setName(s);
+                                            playerData.getProvider().update3DTextLabel();
+                                            player.sendMessage(Color.GREEN, "* Dein Autohaus heißt nun: " + s);
+                                            inputDialog.showParentDialog();
+                                        }
+                                    })
+                                    .build()
+                                    .show();
+                        })
+                        .item("Kasse", (e) -> {
+                            ListDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
+                                    .caption("Kasse")
+                                    .buttonCancel("Zurück")
+                                    .buttonOk("Ok")
+                                    .parentDialog(e.getCurrentDialog())
+                                    .onClickCancel(AbstractDialog::showParentDialog)
+                                    .item("Status einsehen", (event) -> {
+                                        MsgboxDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
+                                                .caption("Aktueller Status")
+                                                .parentDialog(event.getCurrentDialog())
+                                                .buttonOk("Zurück")
+                                                .buttonCancel("Zurück")
+                                                .onClickCancel(AbstractDialog::showParentDialog)
+                                                .onClickOk(AbstractDialog::showParentDialog)
+                                                .message("Es befinden sich aktuell:\n\n" + playerData.getProvider().getCash() + "$\n\nin der Kasse.")
+                                                .build()
+                                                .show();
+                                    })
+                                    .item("Geld abheben", (event) -> {
+                                        InputDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
+                                                .caption("Geld abheben")
+                                                .parentDialog(event.getCurrentDialog())
+                                                .buttonCancel("Zurück")
+                                                .buttonOk("Abheben")
+                                                .message("Wie viel Geld möchtest du aus der Kasse nehmen?\nEs befinden sich " + playerData.getProvider().getCash() + "$ in der Kasse:")
+                                                .onClickCancel(AbstractDialog::showParentDialog)
+                                                .onClickOk((inputDialog, s) -> {
+                                                    try {
+                                                        int money = Integer.parseInt(s);
+                                                        if(money < 1 || money > playerData.getProvider().getCash()) {
+                                                            player.sendMessage(Color.RED, "* Der Betrag darf nicht kleiner als 1 sein, und nicht größer als in der Kasse verfügbar ist.");
+                                                            inputDialog.show();
+                                                        } else {
+                                                            DealershipPlugin.getInstance().getAddMoneyFunction().accept(player, money);
+                                                            playerData.getProvider().setCash(playerData.getProvider().getCash()-money);
+                                                            player.sendMessage(Color.GREEN, "* Du hast " + money + "$ aus der Kasse genommen.");
+                                                            inputDialog.showParentDialog();
+                                                        }
+                                                    } catch (Exception ex) {
+                                                        player.sendMessage(Color.RED, "* Bitte nur Zahlen eingeben!");
+                                                        inputDialog.show();
+                                                    }
+                                                })
+                                                .build()
+                                                .show();
+                                    })
+                                    .item("Geld einzahlen", (event) -> {
+                                        InputDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
+                                                .caption("Geld einzahlen")
+                                                .parentDialog(event.getCurrentDialog())
+                                                .buttonOk("Einzahlen")
+                                                .buttonCancel("Zurück")
+                                                .message("Wie viel Geld möchtest du in die Kasse einzahlen?\n\nDu kannst maximal " + DealershipPlugin.getInstance().getMoneyGetter().apply(player) + "$ einzahlen." +
+                                                        "\nAktuell befinden sich " + playerData.getProvider().getCash() + "$ in der Kasse:")
+                                                .onClickCancel(AbstractDialog::showParentDialog)
+                                                .onClickOk((inputDialog, s) -> {
+                                                    try {
+                                                        int money = Integer.parseInt(s);
+                                                        if(money < 1 || money > DealershipPlugin.getInstance().getMoneyGetter().apply(player)) {
+                                                            player.sendMessage(Color.RED, "* Der Betrag darf nicht unter 1, und nicht höher als dein aktuelles Geld sein.");
+                                                            inputDialog.show();
+                                                        } else {
+                                                            DealershipPlugin.getInstance().getAddMoneyFunction().accept(player, -money);
+                                                            playerData.getProvider().setCash(playerData.getProvider().getCash() + money);
+                                                            player.sendMessage(Color.GREEN, "* Du hast soeben " + money + "$ in die Kasse eingezahlt.");
+                                                            inputDialog.showParentDialog();
+                                                        }
+                                                    } catch (Exception ex) {
+                                                        player.sendMessage(Color.RED, "* Bitte nur Zahlen eingeben!");
+                                                        inputDialog.show();
+                                                    }
+                                                })
+                                                .build()
+                                                .show();
+                                    })
+                                    .build()
+                                    .show();
+                        })
                         .build()
                         .show();
             }
+        }
+        return true;
+    }
+
+    @Command
+    public boolean ahcreate(Player player) {
+        if(!player.isAdmin()) player.sendMessage(Color.RED, "* Du bist nicht berechtigt diesen Befehl zu verwenden!");
+        else {
+            ListDialog playerList = ListDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
+                    .caption("Besitzer auswählen")
+                    .buttonCancel("Abbrechen")
+                    .buttonOk("Weiter")
+                    .build();
+            for(Player pl : Player.getHumans()) {
+                PlayerData externPlayerData = DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObject(pl, PlayerData.class);
+                if(externPlayerData.getProvider() == null) {
+                    playerList.addItem(pl.getName(), (e) -> {
+                        InputDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
+                                .caption("Autohausname eingeben")
+                                .message("Gebe bitte nun den Namen des Autohaus ein.\n(z.B. " + pl.getName() + "'s Autohaus)")
+                                .buttonCancel("Zurück")
+                                .buttonOk("Weiter")
+                                .parentDialog(e.getCurrentDialog())
+                                .onClickCancel(AbstractDialog::showParentDialog)
+                                .onClickOk((inputDialog, s) -> {
+                                    if(s.contains("|") || s.contains(",")) {
+                                        player.sendMessage(Color.RED, "* Der Name darf keine '|' oder ',' enthalten.");
+                                        inputDialog.show();
+                                    } else {
+                                        if(externPlayerData.getProvider() != null) {
+                                            player.sendMessage(Color.RED, "* Der ausgewählte Spieler hat in der Zeit schon ein Autohaus zugewiesen bekommen.");
+                                            inputDialog.showParentDialog();
+                                        } else {
+                                            VehicleProvider provider = new VehicleProvider(pl.getName(), player.getLocation());
+                                            provider.setName(s);
+                                            provider.setDatabaseId(DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("INSERT INTO vehicleproviders (owner) VALUES ('" + pl.getName() + "')"));
+                                            provider.update3DTextLabel();
+                                            externPlayerData.setProvider(provider);
+                                            pl.sendMessage(Color.GREEN, "* Dir wurde soeben ein Autohaus mit dem Namen '" + s + "' zugewiesen.");
+                                            pl.sendMessage(Color.GREEN, "* Die Position wurde dir Rot auf der Karte markiert.");
+                                            pl.setCheckpoint(new Checkpoint() {
+                                                @Override
+                                                public Radius getLocation() {
+                                                    return new Radius(provider.getPickupPosition(), 3);
+                                                }
+
+                                                @Override
+                                                public void onEnter(Player player) {
+                                                    pl.disableCheckpoint();
+                                                    pl.sendMessage(Color.GREEN, "* Du kannst dein Autohaus mit /ahsettings konfigurieren.");
+                                                }
+                                            });
+                                            player.sendMessage(Color.GREEN, "* Der Spieler " + pl.getName() + " besitzt nun ein Autohaus mit dem Namen " + s + ".");
+                                        }
+                                    }
+                                })
+                                .build()
+                                .show();
+                    });
+                }
+            }
+            playerList.show();
         }
         return true;
     }
