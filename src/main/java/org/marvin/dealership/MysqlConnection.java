@@ -61,7 +61,12 @@ public class MysqlConnection {
                 stmnt.executeUpdate("CREATE TABLE IF NOT EXISTS playervehicles (Id INTEGER PRIMARY KEY AUTO_INCREMENT, owner CHAR(24), modelid INTEGER, c1 INTEGER, c2 INTEGER," +
                         "spawnX FLOAT, spawnY FLOAT, spawnZ FLOAT, spawnA FLOAT, bought BIGINT, sellerName CHAR(24), price INTEGER, components TEXT(50))");
                 stmnt.executeUpdate("CREATE TABLE IF NOT EXISTS vehicleproviders (Id INTEGER PRIMARY KEY AUTO_INCREMENT, owner CHAR(24), pickupLocationX FLOAT, " +
-                        "pickupLocationY FLOAT, pickupLocationZ FLOAT, offers TEXT(500), messageLog Text(700), kasse INTEGER, parkingList TEXT(500), name CHAR(25), licenses TEXT(500))");
+                        "pickupLocationY FLOAT, pickupLocationZ FLOAT, kasse INTEGER, parkingList TEXT(500), name CHAR(25), licenses TEXT(500))");
+                stmnt.executeUpdate("CREATE TABLE IF NOT EXISTS messagelog (Id INTEGER PRIMARY KEY AUTO_INCREMENT, providerId INTEGER, buyer CHAR(24), price INTEGER, modelid INTEGER, boughtDate BIGINT)");
+                stmnt.executeUpdate("CREATE TABLE IF NOT EXISTS vehicleoffers (Id INTEGER PRIMARY KEY AUTO_INCREMENT, providerId INTEGER, modelid INTEGER, spawnX FLOAT, spawnY FLOAT" +
+                        ", spawnZ FLOAT, spawnA FLOAT, price INTEGER)");
+                stmnt.executeUpdate("CREATE TABLE IF NOT EXISTS parkingspots (Id INTEGER PRIMARY KEY AUTO_INCREMENT, providerId INTEGER, spawnX FLOAT, spawnY FLOAT, spawnZ FLOAT, spawnA FLOAT)");
+                stmnt.executeUpdate("CREATE TABLE IF NOT EXISTS licenses (Id INTEGER PRIMARY KEY AUTO_INCREMENT, providerId INTEGER, modelid INTEGER, price INTEGER)");
             } else {
                 DealershipPlugin.getInstance().getLoggerInstance().info("Mysql Datenbank konnte nicht erstellt werden.");
             }

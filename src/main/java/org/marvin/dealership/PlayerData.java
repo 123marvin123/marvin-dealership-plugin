@@ -14,7 +14,7 @@ import net.gtaun.util.event.EventManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerData extends PlayerLifecycleObject {
+class PlayerData extends PlayerLifecycleObject {
     private Player player;
     private List<PlayerVehicle> playerVehicles;
     private int money;
@@ -26,7 +26,8 @@ public class PlayerData extends PlayerLifecycleObject {
     private PlayerTextdraw offerDelete;
     private PlayerTextdraw offerCancel;
     private VehicleOffer lastOffer;
-    
+    private int selectedIndex;
+
     public PlayerData(EventManager eventManager, Player player) {
         super(eventManager, player);
         this.player = player;
@@ -71,7 +72,16 @@ public class PlayerData extends PlayerLifecycleObject {
 	PlayerTextdraw getOfferVehiclePrice() {
 		return offerVehiclePrice;
 	}
-    public void setProvider(VehicleProvider provider) {
+
+    int getSelectedIndex() {
+        return selectedIndex;
+    }
+
+    void setSelectedIndex(int selectedIndex) {
+        this.selectedIndex = selectedIndex;
+    }
+
+    void setProvider(VehicleProvider provider) {
         this.provider = provider;
         if(provider == null) {
         	if(offerVehicleName != null)

@@ -18,6 +18,7 @@ import net.gtaun.util.event.EventManager;
 import org.slf4j.Logger;
 
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -85,6 +86,7 @@ public class DealershipPlugin extends Plugin {
     }
 
     private void saveVehicleProvider(VehicleProvider provider) {
+        Server.get();
         Map<String, Object> keyList = new HashMap<>();
         keyList.put("owner", provider.getOwner());
         keyList.put("pickupLocationX", provider.getPickupPosition().x);
@@ -92,24 +94,10 @@ public class DealershipPlugin extends Plugin {
         keyList.put("pickupLocationZ", provider.getPickupPosition().z);
         keyList.put("kasse", provider.getCash());
         keyList.put("name", provider.getName());
-        StringBuilder offerList = new StringBuilder();
         for(VehicleOffer offer : provider.getOfferList()) {
-            AngledLocation vehicleLocation = offer.getSpawnLocation();
-            offerList.append(offer.getModelId()).append(",").append(offer.getPrice()).append(",").append(vehicleLocation.x).append(",").append(vehicleLocation.y).append(",")
-                    .append(vehicleLocation.z).append(",").append(vehicleLocation.angle).append("|");
+            mysqlConnection.executeUpdate("UPDATE vehicleoffers set spawnX = '" + offer.getSpawnLocation().x + "', spawnY = '" + offer.getSpawnLocation().y + "', spawnZ = '" + offer.getSpawnLocation().z + "', " +
+                    "price = '" + offer.getPrice() + "', spawnA = '" + offer.getSpawnLocation().angle + "', modelid = '" + offer.getModelId() + "' WHERE Id = '" + offer.getDatabaseId() + "'");
         }
-        if(offerList.toString().length() > 0)
-            keyList.put("offers", offerList.toString().substring(0, offerList.toString().length()-1));
-        else
-            keyList.put("offers", "");
-        StringBuilder parkingList = new StringBuilder();
-        for(AngledLocation parkingSpot : provider.getParkingList()) {
-            parkingList.append(parkingSpot.x).append(",").append(parkingSpot.y).append(",").append(parkingSpot.z).append(",").append(parkingSpot.angle).append("|");
-        }
-        if(parkingList.toString().length() > 0)
-            keyList.put("parkingList", parkingList.toString().substring(0, parkingList.toString().length()-1));
-        else
-            keyList.put("parkingList", "");
         StringBuilder licenseBuilder = new StringBuilder();
         for(BuyableVehicleLicense license : provider.getBoughtLicenses()) {
             licenseBuilder.append(license.getModelid()).append(",").append(license.getPrice()).append("|");
@@ -118,13 +106,12 @@ public class DealershipPlugin extends Plugin {
             keyList.put("licenses", licenseBuilder.toString().substring(0, licenseBuilder.toString().length()-1));
         else
             keyList.put("licenses", "");
-        keyList.put("messageLog", "empty");
         StringBuilder builder = new StringBuilder();
         builder.append("UPDATE vehicleproviders SET ");
         Iterator<Map.Entry<String, Object>> it = keyList.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Object> pairs = it.next();
-            builder.append(pairs.getKey()).append(" = '").append(pairs.getValue()).append("'");
+            builder.append(pairs.getKey()).append(" = \"").append(pairs.getValue()).append("\"");
             if (it.hasNext()) {
                 builder.append(", ");
             } else {
@@ -144,44 +131,32 @@ public class DealershipPlugin extends Plugin {
                 provider.setCash(providerSet.getInt("kasse"));
                 provider.setDatabaseId(providerSet.getInt("Id"));
                 provider.setName(providerSet.getString("name"));
-                String offerList = providerSet.getString("offers");
-                if(offerList != null && !offerList.equals("")) {
-                    String[] parts = offerList.split("[|]");
-                    for(String part : parts) {
-                        String[] offerInformation = part.split("[,]");
-                        VehicleOffer offer = new VehicleOffer(Integer.parseInt(offerInformation[0]), Integer.parseInt(offerInformation[1]), Float.parseFloat(offerInformation[2]), Float.parseFloat(offerInformation[3]),
-                            Float.parseFloat(offerInformation[4]), Float.parseFloat(offerInformation[5]), provider);
-                        provider.getOfferList().add(offer);
-                    }
+                ResultSet vehicleOffers = mysqlConnection.executeQuery("SELECT * FROM vehicleoffers WHERE providerId = '" + provider.getDatabaseId() + "'");
+                while(vehicleOffers.next()) {
+                    VehicleOffer offer = new VehicleOffer(vehicleOffers.getInt("modelid"), vehicleOffers.getInt("price"), vehicleOffers.getFloat("spawnX"), vehicleOffers.getFloat("spawnY"),
+                            vehicleOffers.getFloat("spawnZ"), vehicleOffers.getFloat("spawnA"), provider);
+                    offer.setDatabaseId(vehicleOffers.getInt("Id"));
+                    provider.getOfferList().add(offer);
                 }
-                String messageLog = providerSet.getString("messageLog");
-                if(messageLog != null) {
-                    String[] parts = messageLog.split("[|]");
-                    for(String part : parts) {
-                        //TODO: add messagelog load system
-                    }
+                ResultSet parkingSpots = mysqlConnection.executeQuery("SELECT * FROM parkingspots WHERE providerId = '" + provider.getDatabaseId() + "'");
+                while(parkingSpots.next()) {
+                    provider.getParkingList().add(new VehicleParkingspot(new AngledLocation(parkingSpots.getFloat("spawnX"), parkingSpots.getFloat("spawnY"), parkingSpots.getFloat("spawnZ"), parkingSpots.getFloat("spawnA")), parkingSpots.getInt("Id")));
                 }
-                String parkingList = providerSet.getString("parkingList");
-                if(parkingList != null && !parkingList.equals("")) {
-                    String[] parts = parkingList.split("[|]");
-                    for(String part : parts) {
-                        String[] content = part.split("[,]");
-                        float x = Float.parseFloat(content[0]);
-                        float y = Float.parseFloat(content[1]);
-                        float z = Float.parseFloat(content[2]);
-                        float a = Float.parseFloat(content[3]);
-                        AngledLocation parkignSpot = new AngledLocation(x, y, z, a);
-                        provider.getParkingList().add(parkignSpot);
-                    }
+                ResultSet licenses = mysqlConnection.executeQuery("SELECT * FROM licenses WHERE providerId = '" + provider.getDatabaseId() + "'");
+                while(licenses.next()) {
+                    BuyableVehicleLicense license = new BuyableVehicleLicense(licenses.getInt("modelid"), licenses.getInt("price"));
+                    license.setDatabaseId(licenses.getInt("Id"));
+                    provider.getBoughtLicenses().add(license);
                 }
-                String licenses = providerSet.getString("licenses");
-                if(licenses != null && !licenses.equals("")) {
-                    String[] parts = licenses.split("[|]");
-                    for(String part : parts) {
-                        String[] information = part.split("[,]");
-                        BuyableVehicleLicense license = new BuyableVehicleLicense(Integer.parseInt(information[0]), Integer.parseInt(information[1]));
-                        provider.getBoughtLicenses().add(license);
-                    }
+                ResultSet messageLog = mysqlConnection.executeQuery("SELECT * FROM messagelog WHERE providerId = '" + provider.getDatabaseId() + "'");
+                while(messageLog.next()) {
+                    VehicleBoughtLogEntry entry = new VehicleBoughtLogEntry();
+                    entry.setDatabaseId(messageLog.getInt("Id"));
+                    entry.setPrice(messageLog.getInt("price"));
+                    entry.setBuyer(messageLog.getString("buyer"));
+                    entry.setBoughtModel(messageLog.getInt("modelid"));
+                    entry.setBoughtDate(new Date(messageLog.getLong("boughtDate")));
+                    provider.getBoughtLogEntryList().add(entry);
                 }
                 provider.update3DTextLabel();
                 vehicleProviderList.add(provider);

@@ -17,15 +17,24 @@ public class VehicleOffer implements Destroyable {
     private Label label;
     private AngledLocation spawnLocation;
     private VehicleProvider provider;
+    private int databaseId;
 
     public VehicleOffer(int model, int price, float x, float y, float z, float a, VehicleProvider provider) {
         this.modelId = model;
         this.price = price;
         this.spawnLocation = new AngledLocation(x, y, z, a);
-        this.preview = Vehicle.create(model, x, y, z, a, 1, 1, 20);
+        this.preview = Vehicle.create(model, x, y, z, a, 1, 1, 10);
+        this.provider = provider;
         updateLabel();
         this.label.attach(preview, 0, 0, 0);
-        this.provider = provider;
+    }
+
+    public int getDatabaseId() {
+        return databaseId;
+    }
+
+    public void setDatabaseId(int databaseId) {
+        this.databaseId = databaseId;
     }
 
     int getPrice() {
@@ -64,9 +73,9 @@ public class VehicleOffer implements Destroyable {
 
     public void updateLabel() {
         if(label == null)
-            this.label = Label.create("~ Zu verkaufen ~\nFahrzeug: " + VehicleModel.getName(modelId) + "\nPreis: " + price + "$", Color.GREEN, spawnLocation, 0, 20, false);
+            this.label = Label.create("~ Zu verkaufen ~\nFahrzeug: " + VehicleModel.getName(modelId) + "\nPreis: " + price + "$\nVerkäufer: " + provider.getName(), Color.GREEN, spawnLocation, 0, 20, false);
         else
-            label.update(Color.GREEN, "~ Zu verkaufen ~\nFahrzeug: " + VehicleModel.getName(modelId) + "\nPreis: " + price + "$");
+            label.update(Color.GREEN, "~ Zu verkaufen ~\nFahrzeug: " + VehicleModel.getName(modelId) + "\nPreis: " + price + "$\nVerkäufer: " + provider.getName());
     }
 
     @Override

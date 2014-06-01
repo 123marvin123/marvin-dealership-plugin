@@ -9,8 +9,7 @@ import net.gtaun.shoebill.data.AngledLocation;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Radius;
 import net.gtaun.shoebill.event.player.*;
-import net.gtaun.shoebill.event.vehicle.VehicleModEvent;
-import net.gtaun.shoebill.event.vehicle.VehicleResprayEvent;
+import net.gtaun.shoebill.event.vehicle.*;
 import net.gtaun.shoebill.object.Checkpoint;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
@@ -35,7 +34,7 @@ public class PlayerManager {
             for (String param : strings) {
                 message += " [" + param + "]";
             }
-            if(s3 != null)
+            if (s3 != null)
                 message += " - " + s3;
             return message;
         });
@@ -59,6 +58,36 @@ public class PlayerManager {
                 }
             });
             playerData.setProvider(DealershipPlugin.getInstance().getVehicleProviderList().stream().filter(provider -> provider.getOwner().equals(playerData.getPlayer().getName())).findAny().orElse(null));
+        });
+
+        DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(UnoccupiedVehicleUpdateEvent.class, unoccupiedVehicleUpdateEvent -> {
+            if(unoccupiedVehicleUpdateEvent.getPlayer().getLocation().distance(unoccupiedVehicleUpdateEvent.getVehicle().getLocation()) < 5) {
+                VehicleOffer offer = null;
+                for(VehicleProvider provider : DealershipPlugin.getInstance().getVehicleProviderList()) {
+                    offer = provider.hasVehicle(unoccupiedVehicleUpdateEvent.getVehicle());
+                    if(offer != null) break;
+                }
+                if(offer != null)
+                    unoccupiedVehicleUpdateEvent.getVehicle().setLocation(offer.getSpawnLocation());
+            }
+        });
+
+        DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(VehicleSpawnEvent.class, vehicleSpawnEvent -> {
+            for(PlayerData playerData : DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObjects(PlayerData.class)) {
+                PlayerVehicle vehicle = playerData.getPlayerVehicles().stream().filter(veh -> veh != null && veh.getVehicle() == vehicleSpawnEvent.getVehicle()).findAny().orElse(null);
+                if(vehicle != null) {
+                    if(vehicle.getComponentsString() != null) {
+                        String[] splits = vehicle.getComponentsString().split("[,]");
+                        for (String split : splits) {
+                            try {
+                                int component = Integer.parseInt(split);
+                                vehicle.getVehicle().getComponent().add(component);
+                            } catch (Exception ignored) {}
+                        }
+                        break;
+                    }
+                }
+            }
         });
 
         DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(PlayerDisconnectEvent.class, event -> {
@@ -107,11 +136,12 @@ public class PlayerManager {
                                 .show();
                     } else if (e.getPlayerTextdraw() == playerData.getOfferDelete()) {
                         MsgboxDialog.create(e.getPlayer(), DealershipPlugin.getInstance().getEventManagerInstance())
-                                .message("Bist du dir sicher, dass du " + VehicleModel.getName(playerData.getLastOffer().getModelId()) + " aus dem Sortiment entfernen möchdest?" +
+                                .message("Bist du dir sicher, dass du " + VehicleModel.getName(playerData.getLastOffer().getModelId()) + " aus dem Sortiment entfernen möchtest?" +
                                         "\n" + Color.RED.toEmbeddingString() + "Es gibt kein zurück mehr!")
                                 .buttonOk("Löschen")
                                 .buttonCancel("Abbrechen")
                                 .onClickOk(msgboxDialog -> {
+                                    DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("DELETE FROM vehicleoffers WHERE Id = '" + playerData.getLastOffer().getDatabaseId() + "'");
                                     playerData.getLastOffer().getProvider().getOfferList().remove(playerData.getLastOffer());
                                     playerData.getLastOffer().destroy();
                                     e.getPlayer().sendMessage(Color.GREEN, "* Das Fahrzeug " + VehicleModel.getName(playerData.getLastOffer().getModelId()) + " wurde aus dem Sortiment entfernt.");
@@ -133,9 +163,22 @@ public class PlayerManager {
                 PlayerVehicle playerVehicle = playerData.getPlayerVehicles().stream().filter(veh -> veh.getVehicle() != null && veh.getVehicle() == vehicleModEvent.getVehicle()).findAny().orElse(null);
                 if(playerVehicle != null) {
                     playerVehicle.refreshComponentList();
+                    StringBuilder components = new StringBuilder();
+                    for(int component : playerVehicle.getComponents()) {
+                        components.append(component).append(",");
+                    }
+                    playerVehicle.setComponentsString(components.toString());
                 }
             }
         });
+
+        /*DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(VehicleUpdateEvent.class, vehicleUpdateEvent -> {
+            if(vehicleUpdateEvent.getPlayer() != null) {
+                if(VehicleUtils.getVehicleDriver(vehicleUpdateEvent.getVehicle()) == null && vehicleUpdateEvent.getPlayer().getLocation().distance(vehicleUpdateEvent.getVehicle().getLocation()) < 3) {
+                    vehicleUpdateEvent.getVehicle().setLocation(vehicleUpdateEvent.getVehicle().getLocation());
+                }
+            }
+        });*/
 
         DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(VehicleResprayEvent.class, vehicleResprayEvent -> {
             Player playerInVehicle = Player.getHumans().stream().filter(player -> player.getVehicle() != null && player.getVehicle() == vehicleResprayEvent.getVehicle()).findAny().orElse(null);
@@ -161,13 +204,13 @@ public class PlayerManager {
                 PlayerData playerData = DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObject(event.getPlayer(), PlayerData.class);
                 if(offer != null && offer.getProvider() != playerData.getProvider()) {
                     if (offer.getProvider().getParkingList().size() < 1)
-                        event.getPlayer().sendMessage(Color.RED, "* Dieses Autohaus kann nicht benutzt werden, da es noch keine Parkplätze besitzt.");
+                        event.getPlayer().sendMessage(Color.RED, "* Dieser Handel kann nicht benutzt werden, da es noch keine Parkplätze besitzt.");
                     else {
                         event.getPlayer().toggleControllable(false);
                         event.getPlayer().getVehicle().getState().setEngine(0);
                         final VehicleOffer finalOffer = offer;
                         MsgboxDialog.create(event.getPlayer(), DealershipPlugin.getInstance().getEventManagerInstance())
-                                .message("Möchdest du dieses Fahrzeug erwerben?\nFahrzeugname: " + VehicleModel.getName(offer.getModelId()) + "\nFahrzeugtyp: " + VehicleModel.getType(offer.getModelId()) +
+                                .message("Möchtest du dieses Fahrzeug erwerben?\nFahrzeugname: " + VehicleModel.getName(offer.getModelId()) + "\nFahrzeugtyp: " + VehicleModel.getType(offer.getModelId()) +
                                         "\nPreis: " + offer.getPrice() + "$")
                                 .buttonCancel("Aussteigen")
                                 .buttonOk("Kaufen")
@@ -181,8 +224,8 @@ public class PlayerManager {
                                         event.getPlayer().removeFromVehicle();
                                         event.getPlayer().toggleControllable(true);
                                         int index = rnd.nextInt(finalOffer.getProvider().getParkingList().size());
-                                        AngledLocation parkingSpot = finalOffer.getProvider().getParkingList().get(index);
-                                        PlayerVehicle newPlayerVehicle = new PlayerVehicle(finalOffer.getModelId(), event.getPlayer().getName(), parkingSpot.x, parkingSpot.y, parkingSpot.z, parkingSpot.angle, 1, 1);
+                                        VehicleParkingspot parkingSpot = finalOffer.getProvider().getParkingList().get(index);
+                                        PlayerVehicle newPlayerVehicle = new PlayerVehicle(finalOffer.getModelId(), event.getPlayer().getName(), parkingSpot.getLocation().x, parkingSpot.getLocation().y, parkingSpot.getLocation().z, parkingSpot.getLocation().angle, 1, 1);
                                         playerData.getPlayerVehicles().add(newPlayerVehicle);
                                         DealershipPlugin.getInstance().getPlayerVehicles().add(newPlayerVehicle);
                                         newPlayerVehicle.spawnVehicle();
@@ -192,15 +235,23 @@ public class PlayerManager {
                                         newPlayerVehicle.setPrice(finalOffer.getPrice());
                                         newPlayerVehicle.setBoughtDate(new Date(System.currentTimeMillis()));
                                         newPlayerVehicle.setSellersName(finalOffer.getProvider().getOwner());
+                                        VehicleBoughtLogEntry boughtLogEntry = new VehicleBoughtLogEntry();
+                                        boughtLogEntry.setBuyer(playerData.getPlayer().getName());
+                                        boughtLogEntry.setPrice(finalOffer.getPrice());
+                                        boughtLogEntry.setBoughtDate(new Date(System.currentTimeMillis()));
+                                        boughtLogEntry.setBoughtModel(finalOffer.getModelId());
+                                        finalOffer.getProvider().getBoughtLogEntryList().add(boughtLogEntry);
+                                        DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("INSERT INTO messagelog (providerId, buyer, price, modelid, boughtDate) VALUES (" + "" +
+                                                "'" + finalOffer.getProvider().getDatabaseId() + "', '" + event.getPlayer().getName() + "', '" + finalOffer.getPrice() + "', '" + finalOffer.getModelId() + "', '" + System.currentTimeMillis() + "')");
                                         finalOffer.getProvider().setCash(finalOffer.getProvider().getCash() + finalOffer.getPrice());
                                         DealershipPlugin.getInstance().getAddMoneyFunction().accept(event.getPlayer(), -finalOffer.getPrice());
                                         event.getPlayer().sendMessage(Color.GREEN, "* Du hast dir erfolgreich für " + finalOffer.getPrice() + "$ eine/n " + VehicleModel.getName(finalOffer.getModelId()) + " gekauft.");
-                                        event.getPlayer().sendMessage(Color.GREEN, "* Dein Fahrzeug steht nun an einem Parkplatz des Autohauses. Es wurde Rot auf der Karte martkiert.");
+                                        event.getPlayer().sendMessage(Color.GREEN, "* Dein Fahrzeug steht nun an einem Parkplatz des Handels bereit. Es wurde Rot auf der Karte martkiert.");
                                         event.getPlayer().sendMessage(Color.GREEN, "* Hilfe zu deinem Fahrzeug findest du unter: /phelp");
                                         event.getPlayer().setCheckpoint(new Checkpoint() {
                                             @Override
                                             public Radius getLocation() {
-                                                return new Radius(parkingSpot, 5);
+                                                return new Radius(parkingSpot.getLocation(), 5);
                                             }
 
                                             @Override

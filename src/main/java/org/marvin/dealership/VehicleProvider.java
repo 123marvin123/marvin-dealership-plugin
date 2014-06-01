@@ -15,7 +15,7 @@ public class VehicleProvider implements Destroyable {
     private String owner;
     private List<VehicleOffer> offerList;
     private List<VehicleBoughtLogEntry> boughtLogEntryList;
-    private List<AngledLocation> parkingList;
+    private List<VehicleParkingspot> parkingList;
     private int cash;
     private Location pickupPosition;
     private Label informationLabel;
@@ -40,9 +40,9 @@ public class VehicleProvider implements Destroyable {
 
     public void update3DTextLabel() {
     	if(informationLabel == null || informationLabel.isDestroyed()) {
-    		this.informationLabel = Label.create("|-- Autohändler --|\nName: " + name + "\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size(), Color.BEIGE, pickupPosition, 0, 20, false);
+    		this.informationLabel = Label.create("|-- Fahrzeughändler --|\nName: " + name + "\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size(), Color.ORANGE, pickupPosition, 0, 20, false);
     	} else
-    		informationLabel.update(Color.BEIGE, "|-- Autohändler --|\nName: " + name + "\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size());
+    		informationLabel.update(Color.ORANGE, "|-- Fahrzeughändler --|\nName: " + name + "\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size());
     }
 
     List<PlayerLabel> getParkingSpotLabels() {
@@ -81,11 +81,11 @@ public class VehicleProvider implements Destroyable {
         this.boughtLogEntryList = boughtLogEntryList;
     }
 
-    List<AngledLocation> getParkingList() {
+    List<VehicleParkingspot> getParkingList() {
         return parkingList;
     }
 
-    void setParkingList(List<AngledLocation> parkingList) {
+    void setParkingList(List<VehicleParkingspot> parkingList) {
         this.parkingList = parkingList;
     }
 
