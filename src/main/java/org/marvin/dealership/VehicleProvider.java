@@ -25,6 +25,9 @@ public class VehicleProvider implements Destroyable {
     private List<BuyableVehicleLicense> boughtLicenses;
     private boolean isLabelShown;
     private List<PlayerLabel> parkingSpotLabels;
+    private boolean testDrives;
+    private AngledLocation testDriveLocation;
+    private int testDriveTime;
 
     public VehicleProvider(String owner, Location pickupPosition) {
         this.owner = owner;
@@ -43,6 +46,30 @@ public class VehicleProvider implements Destroyable {
     		this.informationLabel = Label.create("|-- Fahrzeughändler --|\nName: " + name + "\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size(), Color.ORANGE, pickupPosition, 0, 20, false);
     	} else
     		informationLabel.update(Color.ORANGE, "|-- Fahrzeughändler --|\nName: " + name + "\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size());
+    }
+
+    int getTestDriveTime() {
+        return testDriveTime;
+    }
+
+    void setTestDriveTime(int testDriveTime) {
+        this.testDriveTime = testDriveTime;
+    }
+
+    boolean isTestDrives() {
+        return testDrives;
+    }
+
+    AngledLocation getTestDriveLocation() {
+        return testDriveLocation;
+    }
+
+    void setTestDriveLocation(AngledLocation testDriveLocation) {
+        this.testDriveLocation = testDriveLocation;
+    }
+
+    void setTestDrives(boolean testDrives) {
+        this.testDrives = testDrives;
     }
 
     List<PlayerLabel> getParkingSpotLabels() {

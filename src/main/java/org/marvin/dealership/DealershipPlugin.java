@@ -13,15 +13,21 @@ import net.gtaun.shoebill.object.Server;
 import net.gtaun.shoebill.object.Textdraw;
 import net.gtaun.shoebill.object.World;
 import net.gtaun.shoebill.resource.Plugin;
+import net.gtaun.shoebill.service.Service;
 import net.gtaun.util.event.EventManager;
 
+import net.gtaun.wl.lang.Language;
+import net.gtaun.wl.lang.LanguageService;
+import net.gtaun.wl.lang.LocalizedStringSet;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -43,9 +49,11 @@ public class DealershipPlugin extends Plugin {
     private List<VehicleProvider> vehicleProviderList;
     private PlayerLifecycleHolder playerLifecycleHolder;
     private PlayerManager playerManager;
+    private LanguageService languageService;
+    private LocalizedStringSet localizedStringSet;
     private Function<Player, Integer> moneyGetter = Player::getMoney;
     private BiConsumer<Player, Integer> addMoneyFunction = Player::giveMoney;
-    private PlayerKey engineKey = PlayerKey.YES;
+    private Consumer<Player> showLanguageDialog = player -> languageService.showLanguageSelectionDialog(player, languageService::setPlayerLanguage);
     private boolean findCarEnabled = true;
     private Textdraw offerBoxTextdraw;
     private List<BuyableVehicleLicense> buyableLicenses;
@@ -61,8 +69,10 @@ public class DealershipPlugin extends Plugin {
         vehicleProviderList = new ArrayList<>();
         playerLifecycleHolder = new PlayerLifecycleHolder(eventManager);
         playerLifecycleHolder.registerClass(PlayerData.class);
-        playerManager = new PlayerManager();
         buyableLicenses = new ArrayList<>();
+        languageService = Service.get(LanguageService.class);
+        localizedStringSet = languageService.createStringSet(new File(getDataDir(), "text"));
+        playerManager = new PlayerManager();
         loadPlayerVehicles();
         loadVehicleProviders();
         
@@ -94,6 +104,12 @@ public class DealershipPlugin extends Plugin {
         keyList.put("pickupLocationZ", provider.getPickupPosition().z);
         keyList.put("kasse", provider.getCash());
         keyList.put("name", provider.getName());
+        keyList.put("testDrives", provider.isTestDrives() ? 1 : 0);
+        keyList.put("testDriveX", provider.getTestDriveLocation().x);
+        keyList.put("testDriveY", provider.getTestDriveLocation().y);
+        keyList.put("testDriveZ", provider.getTestDriveLocation().z);
+        keyList.put("testDriveA", provider.getTestDriveLocation().angle);
+        keyList.put("testDriveTime", provider.getTestDriveTime());
         for(VehicleOffer offer : provider.getOfferList()) {
             mysqlConnection.executeUpdate("UPDATE vehicleoffers set spawnX = '" + offer.getSpawnLocation().x + "', spawnY = '" + offer.getSpawnLocation().y + "', spawnZ = '" + offer.getSpawnLocation().z + "', " +
                     "price = '" + offer.getPrice() + "', spawnA = '" + offer.getSpawnLocation().angle + "', modelid = '" + offer.getModelId() + "' WHERE Id = '" + offer.getDatabaseId() + "'");
@@ -131,6 +147,9 @@ public class DealershipPlugin extends Plugin {
                 provider.setCash(providerSet.getInt("kasse"));
                 provider.setDatabaseId(providerSet.getInt("Id"));
                 provider.setName(providerSet.getString("name"));
+                provider.setTestDrives(providerSet.getBoolean("testDrives"));
+                provider.setTestDriveTime(providerSet.getInt("testDriveTime"));
+                provider.setTestDriveLocation(new AngledLocation(providerSet.getFloat("testDriveX"), providerSet.getFloat("testDriveY"), providerSet.getFloat("testDriveZ"), providerSet.getFloat("testDriveA")));
                 ResultSet vehicleOffers = mysqlConnection.executeQuery("SELECT * FROM vehicleoffers WHERE providerId = '" + provider.getDatabaseId() + "'");
                 while(vehicleOffers.next()) {
                     VehicleOffer offer = new VehicleOffer(vehicleOffers.getInt("modelid"), vehicleOffers.getInt("price"), vehicleOffers.getFloat("spawnX"), vehicleOffers.getFloat("spawnY"),
@@ -186,6 +205,10 @@ public class DealershipPlugin extends Plugin {
             ex.printStackTrace();
         }
         logger.info("Es wurden " + playerVehicles.size() + " Spielerfahrzeuge geladen.");
+    }
+
+    LocalizedStringSet getLocalizedStringSet() {
+        return localizedStringSet;
     }
 
     Textdraw getOfferBoxTextdraw() {
@@ -246,6 +269,14 @@ public class DealershipPlugin extends Plugin {
 
     MysqlConnection getMysqlConnection() {
         return mysqlConnection;
+    }
+
+    public Consumer<Player> getShowLanguageDialog() {
+        return showLanguageDialog;
+    }
+
+    public void setPlayerLanguage(Player player, String abbr) {
+        languageService.setPlayerLanguage(player, Language.get(abbr));
     }
 
     void savePlayerVehicle(PlayerVehicle vehicle) {

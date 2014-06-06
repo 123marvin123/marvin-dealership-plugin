@@ -1,0 +1,247 @@
+Name:
+  Short: "DlrShp-Plugin"
+  Long: "Dealership-Plugin"
+
+Textdraws:
+  VehicleName: "Vehiclename: "
+  Price: "Price: "
+  ModelId: "Modelid: "
+  Delete: "Delete"
+  Cancel: "Cancel"
+
+Cmds:
+  Usage: "Uasge: "
+
+Main:
+  DeletedFromModels: "* The vehicle %1$s was removed from the offerlist."
+  CantUseDealer: "* This dealership can't be used, because it has no parking spots."
+  YouAreNotAOwner: "* You are not the owner of a dealership!"
+  CantLockThat: "* You can't affect that vehicle!"
+  SavedNewPos: "* Position saved. Your vehicle will be here in the future."
+  Yes: "Yes"
+  No: "No"
+  ParkingSpot: "Parkingspot"
+  PositionLocated: "* Your dealership was marked red on the map. (Distance: %1$s)"
+  YouGotDealership: "* A admin created a dealership with the name '%1$s' for you."
+  DealershipLocated: "* The position was marked red on the map."
+  SettingsMessage: "* You can configure your dealership with /ahsettings."
+  PlayerOwnDealershipNow: "* Player %1$s owns now a dealership with the name '%2$s'."
+  OpenedPrivateVeh: ">> Your %1$s has been unlocked."
+  ClosedPrivateVeh: ">> Your %1$s has been locked."
+  YourVehicles: "Your vehicles"
+  Details: "Details"
+  ParkedVehicle: ">> Your vehicle will be at this position in future."
+  Distance: "Distance"
+  YourDealership: "Your Dealership"
+  Settings: "Settings"
+  Choose: "Choose"
+  ModelsInSale: "Offerlist"
+  ParkingSpots: "Parkingspots"
+  Find: "Find"
+  DriveToParkingSpot1: "* Please drive to the position, where the parkingspot should me made."
+  DriveToParkingSpot2: "* If you are standing correct, type in /addparking."
+  Enabled: "ON"
+  Disabled: "OFF"
+  Add: "Add"
+
+Dialog:
+  Change: "Change"
+  Cancel: "Cancel"
+  Next: "Next"
+  ChangePriceOfTitle: "Change price of %1$s"
+  ChangePriceOf: |+
+   Please type the new price for %1$s in.
+   Current price: %2$s$
+  ChangedPrice: "* The price of %1$s was set to %2$s$."
+  RemovePreviewModel: |+
+   Are you sure that you want to remove %1$s from the offerlist?
+   %2$sThere will be no chance to recover it!
+  Delete: "Delete"
+  CanceledProcess: "* The process was canceled."
+  VehicleSelection: "Vehicleselection"
+  StepOut: "Step out"
+  BuyVehicleTitle: "Buy vehicle"
+  BuyVehicle: |+
+   Do you want to buy this vehicle?
+   Vehiclename: %1$s
+   Vehicletype: %2$s
+   Price: %3$s$
+  GoBack: "Back"
+  Buy: "Buy"
+  BoughtVehicle1: "* You successfully bought for %1$s$ a %2$s."
+  BoughtVehicle2: "* Your vehicle is now located at a parking spot by the dealership. It is marked red on the map."
+  BoughtVehicle3: "* If you need help, you can use: /phelp"
+  NotEnoughMoney: "* You don't have enough money, to buy this vehicle."
+  YouNeed: "* You need %1$s$ to buy a %2$s."
+  TestDriveTitle: "Testdrive"
+  NotAllowingTestDrives: "* This dealership disabled the testdrive feature!"
+  AddParkingSpotTitle: "Add a parking spot"
+  AddParkingSpot: |+
+   Please be sure that you are at the correct position!
+   Add a new parking spot?
+  ParkingSpotAdded: "* The parking spot was successfully added."
+  SelectOwner: "Choose owner"
+  ChooseNameTitle: "Change dealership name"
+  ChooseName: |+
+   Please input the name of the dealership.
+   (e.g. %1$s)
+  SortBy: "Sort by: "
+  Date: "Date"
+  PriceHigher: "Price >"
+  PriceLower: "Price <"
+  LogMessage: "Sold at %1$s: Vehicle: %2$s"
+  SoldAt: "Sold at %1$s"
+  FullLogMessage: |+
+   Sold at %1$s:
+   
+   Buyer: %2$s
+   Model: %3$s (%4$s)
+   Price: %5$s$
+  LogIsEmpty: "* The log is empty."
+  Locked: "Locked"
+  Unlocked: "Unlocked"
+  VehicleInformation: |+
+   Vehiclename: %1$s
+   Modelid: %2$s
+   Bought price: %3$s$
+   Bought date: %4$s
+   Vehicle provider: %5$s
+   Doors: %6$s
+  FindVehicle: "Find vehicle"
+  Search: "Search"
+  VehicleMarkedOnMap: "* Your %1$s was marked red on the map."
+  SellingVehicle: "Sale of %1$s"
+  SellVehicle: "Are you, that you want to sell your %1$s for %2$s$?"
+  ListParkingSpots: "List parking spots"
+  AvailableParkingSpots: "Available parking spots"
+  DeleteParkingSpots: "Delete parking spots"
+  ParkingSpotGotDeleted: "* The parking spot was deleted successfully."
+  SureToDeleteParkingSpotTitle: "Really delete this parking spot?"
+  SureToDeleteParkingSpot: "Are you sure, that you want to delete the parkign spot with a distance of %1$s?"
+  AddParkingSpot: "Add parking spot"
+  ParkingSpotMarker: "Parking spot marker"
+  PreviewModels: "Preview models"
+  ListPreviews: "List preview models"
+  AddPreviews: "Add preview models"
+  DeletePreviews: "Delete preview models"
+  VehicleMarked: "* The vehicle was marked red on the map."
+  NoPreviews: "* This dealership has no vehicle in it's offerlist."
+  AddPreviewPrice: "Please input the price of the vehicle (only digits):"
+  PriceTooLow: "* The price can't be lower then 0$!"
+  PriceToPayForPreview: |+
+   If you want to buy a %1$s it will cost %2$s$.
+   Are you sure, that you want to pay this price?
+  DriveToPreviewPositionNow: "* Now, drive to the location where the preview vehicle should be parked, and type in /ahsave."
+  NotEnoughMoneyInBank: "* There is not enough money in the cashbox to buy a vehicle of the type '%1$s'."
+  CantGetPreviewNoLicenses: "* You can't buy any vehicles, because you don't own any licenses!"
+  SureToDeletePreview: "Are you sure, that you want to remove the preview model '%1$s'?"
+  PreviewDeleted: "* The vehicle %1$s was successfully removed."
+  DeleteDealership: "Delete dealership"
+  ConfirmDeletion: |+
+   To confirm, that you want to delete your dealership,
+   please input the name of your dealership.
+   Name: %1$s
+  InputedNameNotCorrect: "* The inputted name was not correct."
+  DealershipDeleted: "* Your dealership was removed successfully."
+
+Errors:
+  PriceTooLow: "* The price can't be lower then %1$s$!"
+  OnlyDigits: "* Only input digits please!"
+  YouNeedToSitInAVeh: "* You need to sit in a vehicle!"
+  ParkingSpotTooFarAway: "* The parking spot must be in range of the dealership (max. 100 meters)!"
+  NotAllowedToUse: "* You are not allowed to use this command!"
+  PlayerAlreadyHasDealership: "* The player already got a dealership in time."
+  NoVehicles: "* You don't own any private vehicles."
+  NoNearPrivateVehicle: "* There is no private vehicle near you, that you can affect."
+  NotInAPrivateVeh: "* You are not in one of your private vehicles!"
+  FunctionDeactivated: "* This function is currently disabled."
+  CantSellVehicle: "* You can't sell this vehicle!"
+  DontOwnADealership: "* You don't own a dealership!"
+  NotNearYourDealership: "* You are not near your dealership!"
+  NoModelsInSale: "* The offerlist of your dealership is empty."
+  NoParkingSpots: "* Your dealership has no parking spots."
+  OnlyInputNumbers: "* Only input digits please!"
+
+Testdrive:
+  Started: "* The testdrive was started."
+  DriveTime: "* You can drive %1$s minute/s with this vehicle."
+  Ended: "* The testdrive was stopped."
+  NotActivated: "* This dealership does not support testdrives!"
+  StartHere: "* The testdrives will start here in future."
+  Testdrives: "Testdrives"
+  Allowed: "Allow testdrives"
+  ChangeTimeTitle: "Set time"
+  ChangeTime: |+
+   Please input the length of a testdrive now (in minutes).
+   Current length: %1$s minute/s
+
+  OnlyPositiveDigits: "* Please input only positive numbers."
+  TooLong: "* The testdrive can't be longer then 5 minute/s."
+  ChangedTime: "* The testdrive time is now: %1$s minute/s long."
+  SetPositionTitle: "Set position"
+  DriveToPos1: "* Drive to the position, where the testdrive should start."
+  DriveToPos2: "* If you are standing correct, use /settestdrive."
+  TestdrivesNotActivated: "* Testdrives are currently not enabled!"
+
+Help:
+  Plock: " /plock - Locks your nearest private vehicle."
+  Pfind: " /pfind - Finds one of your private vehicle."
+  Psell: " /psell - Sells your current private vehicle."
+  Ppark: " /ppark - Parks your current private vehicle at a position."
+  Pvehs: " /pvehs - Shows your private vehicles."
+  Phelp: " /phelp - Shows this message."
+
+Licenses:
+  Licenses: "Licenses"
+  Delete: "Remove license"
+  LicenseForVehicle: "License for vehicle: '%1$s'"
+  SureToDelete: |+
+   Are you sure, that you want to remove the license for the vehicle '%1$s'?
+   You paied %2$s$ for this license.
+   You will NOT get your money back!
+   All vehicles who are this license, will be deleted.
+  DeletedLicense: "* The license for the vehicle '%1$s' was successfully removed."
+  CarDeleted: "* %1$s vehicles got deleted, who where using this license."
+  DontOwnAnyLicenses: "* Your dealership don't own any license."
+  Buy: "Buy licenses"
+  SureToBuy: "Do you want to buy a license for the vehicle '%1$s' for %2$s$?"
+  BoughtLicense: "* You successfully bought a license for the vehicle. You had to pay %1$s$."
+  NotEnoughMoney: "* There is not enough money in the cashbox. You will need %1$s$"
+  AlreadyOwnedAllLicenses: "* Your dealership already owns all licenses."
+
+Name:
+  Change: "Change name"
+  InputNewName: |+
+   Please input the new name of the dealership.
+   Current name: %1$s
+  MaxLength: "* Please input max. 24 characters. (min. 1)"
+  Changed: "* Your dealership is now called: %1$s"
+
+CashBox:
+  CashBox: "Cashbox"
+  Status: "See status"
+  StatusMessage: |+
+   There are currently:
+   
+   %1$s$
+   
+   in the cashbox.
+  TakeMoney: "Withdraw money"
+  Withdraw: "Withdraw"
+  HowMuchDeposit: "How much money do you want to deposit from the cashbox? There are currently %1$s$ in it."
+  WithdrawValueTooHigh: "* The value can't be lower then 1, and can't be bigger then the cashbox's balance."
+  DepositValueTooHigh: "* The value can't be lower then 1, and can't be higher then your current money."
+  TookMoneyOut: "* You took %1$s$ out of the cashbox."
+  DepositMoney: "Deposit money"
+  Deposit: "Deposit"
+  HowMuchToDeposit: |+
+   How much money would you like to deposit to the cashbox?
+   
+   You can max. deposit %1$s%.
+   There are currently %2$s$ in the cashbox.
+  DepositedMoney: "* You deposited %1$s into the cashbox."
+
+SellLog:
+  SellLog: "Selllog"
+  NextPage: ">> Next page >>"
+  PrevPage: "<< Previous page <<"

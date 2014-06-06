@@ -1,0 +1,247 @@
+Name:
+  Short: "FhrZ-Plugin"
+  Long: "Fahrzeug-Plugin"
+
+Textdraws:
+  VehicleName: "Fahrzeugname: "
+  Price: "Preis: "
+  ModelId: "Modelid: "
+  Delete: "Loeschen"
+  Cancel: "Abbruch"
+
+Cmds:
+  Usage: "Benutzung: "
+
+Main:
+  DeletedFromModels: "* Das Fahrzeug %1$s wurde aus dem Sortiment entfernt."
+  CantUseDealer: "* Dieser Handel kann nicht benutzt werden, da er noch keine Parkplätze besitzt."
+  YouAreNotAOwner: "* Du bist nicht der Besitzer eines Fahrzeughandels!"
+  CantLockThat: "* Dieses Fahrzeug kannst du nicht beieinflussen!"
+  SavedNewPos: "* Die Position wurde erfolgreich gepeichert. Das Fahrzeug wird in Zukunuft an dieser Stelle sein."
+  Yes: "Ja"
+  No: "Nein"
+  ParkingSpot: "Parkplatz"
+  PositionLocated: "* Dein Handel wurde auf der Karte rot markiert. (Distanz: %1$s)"
+  YouGotDealership: "* Dir wurde soeben ein Fahrzeughandel mit dem Namen '%1$s' zugewiesen."
+  DealershipLocated: "* Die Position wurde rot auf der Karte markiert."
+  SettingsMessage: "* Du kannst deinen Handel mit /ahsettings konfigurieren."
+  PlayerOwnDealershipNow: "* Der Spieler %1$s besitzt nun ein Handel mit dem Namen '%2$s'."
+  OpenedPrivateVeh: ">> Dein/e %1$s wurde aufgeschlossen."
+  ClosedPrivateVeh: ">> Dein/e %1$s wurde abgeschlossen."
+  YourVehicles: "Deine Fahrzeuge"
+  Details: "Details"
+  ParkedVehicle: ">> Dein Fahrzeug wird in Zukunft hier erscheinen."
+  Distance: "Distanz"
+  YourDealership: "Dein Handel"
+  Settings: "Einstellungen"
+  Choose: "Auswählen"
+  ModelsInSale: "Modelle im Angebot"
+  ParkingSpots: "Parkplätze"
+  Find: "Finden"
+  DriveToParkingSpot1: "* Fahre nun bitte zu der Position, wo der Parkplatz erstellt werden soll."
+  DriveToParkingSpot2: "* Wenn du an der richtigen Stelle stehst, gebe bitte /addparking ein."
+  Enabled: "AN"
+  Disabled: "AUS"
+  Add: "Hinzufügen"
+
+Dialog:
+  Change: "Ändern"
+  Cancel: "Abbrechen"
+  Next: "Weiter"
+  ChangePriceOfTitle: "Preis ändern von %1$s"
+  ChangePriceOf: |+
+   Gebe nun den neuen Preis für %1$s ein.
+   Aktueller Preis: %2$s$
+  ChangedPrice: "* Der Preis von %1$s wurde auf %2$s$ gesetzt."
+  RemovePreviewModel: |+
+   Bist du dir sicher, dass du %1$s aus dem Sortiment entfernen möchtest?
+   %2$sEs gibt kein zurück mehr!
+  Delete: "Löschen"
+  CanceledProcess: "* Der Vorgang wurde abgebrochen."
+  VehicleSelection: "Fahrzeugauswahl"
+  StepOut: "Aussteigen"
+  BuyVehicleTitle: "Fahrzeug kaufen"
+  BuyVehicle: |+
+   Möchtest du dieses Fahrzeug erwerben?
+   Fahrzeugname: %1$s
+   Fahrzeugtyp: %2$s
+   Preis: %3$s$
+  GoBack: "Zurück"
+  Buy: "Kaufen"
+  BoughtVehicle1: "* Du hast dir erfolgreich für %1$s$ eine/n %2$s gekauft."
+  BoughtVehicle2: "* Dein Fahrzeug steht nun an einem Parkplatz des Händlers bereit. Dein Fahrzeug wurde Rot auf der Karte markiert."
+  BoughtVehicle3: "* Hilfe zu deinem Fahrzeug findest du unter: /phelp"
+  NotEnoughMoney: "* Du hast leider nicht genug Geld, um dieses Fahrzeug zu erwerben."
+  YouNeed: "* Du brauchst %1$s$ um dir eine/n %2$s zu kaufen."
+  TestDriveTitle: "Testfahrt"
+  NotAllowingTestDrives: "* Dieser Handel erlaubt keine Testfahrten!"
+  AddParkingSpotTitle: "Parkplatz hinzufügen"
+  AddParkingSpot: |+
+   Bitte gehe sicher, dass du dich an der richtigen Position befindest.
+   Parkplatz hinzufügen?
+  ParkingSpotAdded: "* Der Parkplatz wurde erfolgreich registriert."
+  SelectOwner: "Besitzer auswählen"
+  ChooseNameTitle: "Händlername ändern"
+  ChooseName: |+
+   Gebe nun bitte den Namen des Handels ein.
+   (z.B. %1$s)
+  SortBy: "Sortieren nach: "
+  Date: "Datum"
+  PriceHigher: "Preis >"
+  PriceLower: "Preis <"
+  LogMessage: "Verkauf am %1$s: Fahrzeug: %2$s"
+  SoldAt: "Verkauf vom %1$s"
+  FullLogMessage: |+
+   Verkauf vom %1$s:
+
+   Käufer: %2$s
+   Modell: %3$s (%4$s)
+   Preis: %5$s$
+  LogIsEmpty: "* Der Verkaufslog ist leer."
+  Locked: "Abgeschlossen"
+  Unlocked: "Geöffnet"
+  VehicleInformation: |+
+   Fahrzeugname: %1$s
+   Modelid: %2$s
+   Kaufpreis: %3$s$
+   Kaufdatum: %4$s
+   Abieter: %5$s
+   Türen: %6$s
+  FindVehicle: "Fahrzeug finden"
+  Search: "Suchen"
+  VehicleMarkedOnMap: "* Dein/e %1$s wurde auf der Karte rot markiert."
+  SellingVehicle: "Verkauf von %1$s"
+  SellVehicle: "Bist du dir sicher, dass du dein/e %1$s für %2$s$ verkaufen möchtest?"
+  ListParkingSpots: "Parkplätze auflisten"
+  AvailableParkingSpots: "Verfügbare Parkplätze"
+  DeleteParkingSpots: "Parkplätze löschen"
+  ParkingSpotGotDeleted: "* Der Parkplatz wurde erfolgreich gelöscht."
+  SureToDeleteParkingSpotTitle: "Parkplatz wirklich löschen?"
+  SureToDeleteParkingSpot: "Bist du dir sicher, dass du den Parkplatz mit der aktuellen Distanz von %1$s löschen möchtest?"
+  AddParkingSpot: "Parkplatz hinzufügen"
+  ParkingSpotMarker: "Parkplatzmarkierung"
+  PreviewModels: "Vorschaumodelle"
+  ListPreviews: "Vorschaumodelle auflisten"
+  AddPreviews: "Vorschaumodelle hinzufügen"
+  DeletePreviews: "Vorschaumodelle löschen"
+  VehicleMarked: "* Das Fahrzeug wurde auf der Karte rot markiert."
+  NoPreviews: "* Dein Handel hat momentan keine Fahrzeuge in der Austellung"
+  AddPreviewPrice: "Gebe nun den Preis ein, den das Fahrzeug besitzen soll (nur Zahlen):"
+  PriceTooLow: "* Der Preis darf nicht unter 0$ liegen!"
+  PriceToPayForPreview: |+
+   Der Kauf eines Vorschaumodells des Fahrzeuges '%1$s' wird dich %2$s$ kosten.
+   Bist du dir sicher, dass du diesen Preis bezahlen möchtest?
+  DriveToPreviewPositionNow: "* Fahre nun zu der Position, an der das Fahrzeug sein soll und benutze /ahsave"
+  NotEnoughMoneyInBank: "* In der Kasse befindet sich leider nicht genügend Geld um ein Vorschaumodell vom Typen '%1$s' zu erwerben."
+  CantGetPreviewNoLicenses: "* Du hast keine Fahrzeuge zu Auswahl, da du keine Lizezen besitzt!"
+  SureToDeletePreview: "Bist du dir sicher, dass du das Vorschaumodell des Fahrzeuges '%1$s' löschen möchtest?"
+  PreviewDeleted: "* Das Fahrzeug %1$s wurde erfolgreich entfernt."
+  DeleteDealership: "Handel löschen"
+  ConfirmDeletion: |+
+   Um zu bestätigen, dass du deinen Handel löschen möchtest,
+   geb bitte den Namen deines Handels ein.
+   Name: %1$s
+  InputedNameNotCorrect: "* Der eingegebene Name stimmt nicht mit dem aktuellen überein."
+  DealershipDeleted: "* Dein Handel wurde erfolgreich gelöscht."
+
+Errors:
+  PriceTooLow: "* Der Preis darf nicht unter %1$s$ liegen!"
+  OnlyDigits: "* Bitte nur Zahlen eingeben!"
+  YouNeedToSitInAVeh: "* Du musst in einem Fahrzeug sitzen!"
+  ParkingSpotTooFarAway: "* Der Parkplatz muss im Umkreis von 100 Metern liegen!"
+  NotAllowedToUse: "* Du bist nicht berechtigt diesen Befehl zu verwenden!"
+  PlayerAlreadyHasDealership: "* Der Spieler wurde in der Zeit bereits als Händler akzeptiert."
+  NoVehicles: "* Du besitzt keine Privatfahrzeuge."
+  NoNearPrivateVehicle: "* Es ist kein Privatfahrzeug in der Nähe, was du beeinflussen könntest."
+  NotInAPrivateVeh: "* Du befindest dich nicht in einem deiner Privatfahrzeuge!"
+  FunctionDeactivated: "* Diese Funktion ist leider nicht aktiviert!"
+  CantSellVehicle: "* Du kannst dieses Fahrzeug nicht verkaufen!"
+  DontOwnADealership: "* Du besitzt kein Fahrzeughandel!"
+  NotNearYourDealership: "* Du bist nicht in der Nähe deines Handels!"
+  NoModelsInSale: "* Dein Handel besitzt keine Angebote."
+  NoParkingSpots: "* Dein Handel besitzt noch keine Parkplätze."
+  OnlyInputNumbers: "* Bitte nur Zahlen eingeben!"
+
+Testdrive:
+  Started: "* Die Testfahrt wurde gestartet."
+  DriveTime: "* Du kannst nun %1$s Minute/n mit dem Fahrzeug fahren."
+  Ended: "* Die Testfahrt wurde beendet."
+  NotActivated: "* Testfahrten sind nicht aktiviert!"
+  StartHere: "* Die Testfahrten werden in Zukunft hier starten."
+  Testdrives: "Testfahrten"
+  Allowed: "Testfahrten erlaubt"
+  ChangeTimeTitle: "Zeit einstellen"
+  ChangeTime: |+
+   Gebe nun bitte an, wie lange die Testfahrtzeit andauern soll (in Minuten).
+   Momentane Testfahrtzeit: %1$s Minute/n
+
+  OnlyPositiveDigits: "* Bitte nur positive Zahlen eingeben."
+  TooLong: "* Die Testfahrtzeit darf nicht länger als 5 Minuten gehen."
+  ChangedTime: "* Die Testfahrtzeit beträgt nun: %1$s Minute/n."
+  SetPositionTitle: "Position setzen"
+  DriveToPos1: "* Fahre nun zu der Position, an der die Testfahrt starten soll."
+  DriveToPos2: "* Wenn du an der richtigen Stelle bist, benutze /settestdrive."
+  TestdrivesNotActivated: "* Testfahrten sind aktuell nicht aktiviert!"
+
+Help:
+  Plock: " /plock - Schließt das am nahsten gelegene Privatfahrzeug von dir ab."
+  Pfind: " /pfind - Findet dein Privarfahrzeug, und markiert es auf der Karte."
+  Psell: " /psell - Verkauft dein aktuelles Privatfahrzeug."
+  Ppark: " /ppark - Parkt dein aktuelles Privatfahrzeug an einer Position."
+  Pvehs: " /pvehs - Zeigt deine Privatfahrzeuge an."
+  Phelp: " /phelp - Zeigt diese Meldung."
+
+Licenses:
+  Licenses: "Lizenzen"
+  Delete: "Lizenzen löschen"
+  LicenseForVehicle: "Lizenz für Fahrzeug: '%1$s'"
+  SureToDelete: |+
+   Bist du dir sicher, dass du die Lizenz für das Fahrzeug '%1$s' löschen möchtest?
+   Diese Lizenz hat dich %2$s$ gekostet.
+   Das Geld bekommst du NICHT wieder!
+   Alle Fahrzeuge die diese Lizenz verwenden, werden aus deinem Sortiment entfernt.
+  DeletedLicense: "* Die Lizenz für das Fahrzeug '%1$s' wurde erfolgreich gelöscht."
+  CarDeleted: "* Es wurde/n %1$s Fahrzeug/e mit dieser Lizenz aus dem Sortiment entfernt."
+  DontOwnAnyLicenses: "* Dein Handel besitzt keine Lizenzen."
+  Buy: "Lizenzen erwerben"
+  SureToBuy: "Möchtest du die Lizenz für das Fahrzeug '%1$s' für %2$s$ erwerben?"
+  BoughtLicense: "* Dir wurde erfolgreich eine Lizenz ausgestellt. Du musstest dafür %1$s$ zahlen."
+  NotEnoughMoney: "* Es befindet sich nicht genug Geld in der Kasse. Du brauchst %1$s$"
+  AlreadyOwnedAllLicenses: "* Dein Handel besitzt bereits alle verfügbare Lizenzen"
+
+Name:
+  Change: "Name ändern"
+  InputNewName: |+
+   Bitte gebe nun den neuen Namen für dein Handel ein.
+   Aktueller Name: %1$s
+  MaxLength: "* Bitte max. 24 Zeichen eingeben. (Mind. 1)"
+  Changed: "* Dein Handel heißt nun: %1$s"
+
+CashBox:
+  CashBox: "Kasse"
+  Status: "Status einsehen"
+  StatusMessage: |+
+   Es befinden sich aktuell:
+
+   %1$s$
+
+   in der Kasse.
+  TakeMoney: "Geld abheben"
+  Withdraw: "Abheben"
+  HowMuchDeposit: "Wie viel Geld wüdest du gerne aus der Kasse nehmen? Aktuell befinden sich %1$s$ in der Kasse."
+  WithdrawValueTooHigh: "* Der Betrag darf nicht kleiner als 1 sein, und nicht größer als in der Kasse verfügbar ist."
+  DepositValueTooHigh: "* Der Betrag darf nicht kleiner als 1 sein, und nicht größer als dein aktuelles Geld."
+  TookMoneyOut: "* Du hast %1$s$ aus der Kasse genommen."
+  DepositMoney: "Geld einzahlen"
+  Deposit: "Einzahlen"
+  HowMuchToDeposit: |+
+   Wie viel Geld würdest du gerne in die Kasse einzahlen?
+
+   Du kannst maximal %1$s% einzahlen.
+   Aktuell befinden sich %2$s$ in der Kasse.
+  DepositedMoney: "* Du hast soeben %1$s$ in die Kasse eingezahlt."
+
+SellLog:
+  SellLog: "Verkaufsverlauf"
+  NextPage: ">> Nächste Seite >>"
+  PrevPage: "<< Vorherige Seite <<"

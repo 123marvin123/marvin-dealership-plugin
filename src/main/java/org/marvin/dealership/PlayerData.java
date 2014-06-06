@@ -4,11 +4,9 @@ import net.gtaun.shoebill.common.player.PlayerLifecycleObject;
 import net.gtaun.shoebill.constant.TextDrawAlign;
 import net.gtaun.shoebill.constant.TextDrawFont;
 import net.gtaun.shoebill.data.Color;
+import net.gtaun.shoebill.data.Time;
 import net.gtaun.shoebill.data.Vector3D;
-import net.gtaun.shoebill.object.Player;
-import net.gtaun.shoebill.object.PlayerObject;
-import net.gtaun.shoebill.object.PlayerTextdraw;
-import net.gtaun.shoebill.object.SampObject;
+import net.gtaun.shoebill.object.*;
 import net.gtaun.util.event.EventManager;
 
 import java.util.ArrayList;
@@ -27,6 +25,8 @@ class PlayerData extends PlayerLifecycleObject {
     private PlayerTextdraw offerCancel;
     private VehicleOffer lastOffer;
     private int selectedIndex;
+    private TestDriver testDriver;
+    private Timer testDriveRemover;
 
     public PlayerData(EventManager eventManager, Player player) {
         super(eventManager, player);
@@ -73,6 +73,22 @@ class PlayerData extends PlayerLifecycleObject {
 		return offerVehiclePrice;
 	}
 
+    Timer getTestDriveRemover() {
+        return testDriveRemover;
+    }
+
+    void setTestDriveRemover(Timer testDriveRemover) {
+        this.testDriveRemover = testDriveRemover;
+    }
+
+    TestDriver getTestDriver() {
+        return testDriver;
+    }
+
+    void setTestDriver(TestDriver testDriver) {
+        this.testDriver = testDriver;
+    }
+
     int getSelectedIndex() {
         return selectedIndex;
     }
@@ -96,7 +112,7 @@ class PlayerData extends PlayerLifecycleObject {
         		offerDelete.destroy();
         } else {
         	if(offerVehicleName == null) {
-        		offerVehicleName = PlayerTextdraw.create(player, 311.666625f, 164.681350f, "Fahrzeugname: ");
+        		offerVehicleName = PlayerTextdraw.create(player, 311.666625f, 164.681350f, DealershipPlugin.getInstance().getLocalizedStringSet().get(player, "Textdraws.VehicleName"));
         		offerVehicleName.setLetterSize(0.256666f, 1.828148f);
         		offerVehicleName.setAlignment(TextDrawAlign.CENTER);
         		offerVehicleName.setColor(new Color(-1));
@@ -106,7 +122,7 @@ class PlayerData extends PlayerLifecycleObject {
         		offerVehicleName.setFont(TextDrawFont.FONT2);
         		offerVehicleName.setProportional(true);
         	} if(offerVehiclePrice == null) {
-        		offerVehiclePrice = PlayerTextdraw.create(player, 351.666809f, 201.599990f, "Preis: ");
+        		offerVehiclePrice = PlayerTextdraw.create(player, 351.666809f, 201.599990f, DealershipPlugin.getInstance().getLocalizedStringSet().get(player, "Textdraws.Price"));
         		offerVehiclePrice.setLetterSize(0.298332f, 1.392591f);
         		offerVehiclePrice.setAlignment(TextDrawAlign.RIGHT);
         		offerVehiclePrice.setColor(new Color(-1));
@@ -117,7 +133,7 @@ class PlayerData extends PlayerLifecycleObject {
         		offerVehiclePrice.setProportional(true);
         		offerVehiclePrice.setSelectable(true);
         	} if(offerVehicleModel == null) {
-        		offerVehicleModel = PlayerTextdraw.create(player, 310.999938f, 185.422302f, "Modelid: ");
+        		offerVehicleModel = PlayerTextdraw.create(player, 310.999938f, 185.422302f, DealershipPlugin.getInstance().getLocalizedStringSet().get(player, "Textdraws.ModelId"));
         		offerVehicleModel.setLetterSize(0.284666f, 1.280591f);
         		offerVehicleModel.setAlignment(TextDrawAlign.CENTER);
         		offerVehicleModel.setColor(new Color(-1));
@@ -134,7 +150,7 @@ class PlayerData extends PlayerLifecycleObject {
         		offerModelBox.setFont(TextDrawFont.MODEL_PREVIEW);
         		offerModelBox.setPreviewModelRotation(-12, 0, 0, 0.75f);
         	} if(offerDelete == null) {
-        		offerDelete = PlayerTextdraw.create(player, 247.333389f, 284.148437f, "Loeschen");
+        		offerDelete = PlayerTextdraw.create(player, 247.333389f, 284.148437f, DealershipPlugin.getInstance().getLocalizedStringSet().get(player, "Textdraws.Delete"));
         		offerDelete.setLetterSize(0.449999f, 1.600000f);
         		offerDelete.setAlignment(TextDrawAlign.LEFT);
         		offerDelete.setColor(new Color(-1));
@@ -145,7 +161,7 @@ class PlayerData extends PlayerLifecycleObject {
         		offerDelete.setProportional(true);
         		offerDelete.setSelectable(true);
         	} if(offerCancel == null) {
-                offerCancel = PlayerTextdraw.create(player, 323.666687f, 284.563018f, "Abbruch");
+                offerCancel = PlayerTextdraw.create(player, 323.666687f, 284.563018f, DealershipPlugin.getInstance().getLocalizedStringSet().get(player, "Textdraws.Cancel"));
                 offerCancel.setLetterSize(0.400000f, 1.467259f);
                 offerCancel.setAlignment(TextDrawAlign.LEFT);
                 offerCancel.setColor(new Color(-1));
