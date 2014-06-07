@@ -10,6 +10,7 @@ import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.data.Vector3D;
 import net.gtaun.shoebill.object.*;
+import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.resource.Plugin;
 import net.gtaun.shoebill.service.Service;
 import net.gtaun.util.event.Event;
@@ -59,6 +60,7 @@ public class DealershipPlugin extends Plugin {
     private boolean findCarEnabled = true;
     private Textdraw offerBoxTextdraw;
     private List<BuyableVehicleLicense> buyableLicenses;
+    private Timer licenseChecker;
     @Override
     protected void onEnable() throws Throwable {
         instance = this;
@@ -77,7 +79,14 @@ public class DealershipPlugin extends Plugin {
         playerManager = new PlayerManager();
         loadPlayerVehicles();
         loadVehicleProviders();
-        
+
+        licenseChecker = Timer.create(3600000, i -> vehicleProviderList.stream().filter(provider -> provider.getBoughtLicenses().size() > 0).forEach(provider -> provider.getBoughtLicenses().stream().filter(lic -> !lic.isExpired()).forEach(lic -> {
+            if(lic.getExpire().getTime() < System.currentTimeMillis()) {
+                lic.setExpired(true);
+            }
+        })));
+        licenseChecker.start();
+
         offerBoxTextdraw = Textdraw.create(382.666717f, 164.937103f, "usebox");
         offerBoxTextdraw.setLetterSize(0.000000f, 15.363155f);
         offerBoxTextdraw.setTextSize(240.666687f, 0.000000f);
@@ -138,14 +147,6 @@ public class DealershipPlugin extends Plugin {
             mysqlConnection.executeUpdate("UPDATE vehicleoffers set spawnX = '" + offer.getSpawnLocation().x + "', spawnY = '" + offer.getSpawnLocation().y + "', spawnZ = '" + offer.getSpawnLocation().z + "', " +
                     "price = '" + offer.getPrice() + "', spawnA = '" + offer.getSpawnLocation().angle + "', modelid = '" + offer.getModelId() + "' WHERE Id = '" + offer.getDatabaseId() + "'");
         }
-        StringBuilder licenseBuilder = new StringBuilder();
-        for(BuyableVehicleLicense license : provider.getBoughtLicenses()) {
-            licenseBuilder.append(license.getModelid()).append(",").append(license.getPrice()).append("|");
-        }
-        if(licenseBuilder.toString().length() > 0)
-            keyList.put("licenses", licenseBuilder.toString().substring(0, licenseBuilder.toString().length()-1));
-        else
-            keyList.put("licenses", "");
         StringBuilder builder = new StringBuilder();
         builder.append("UPDATE vehicleproviders SET ");
         Iterator<Map.Entry<String, Object>> it = keyList.entrySet().iterator();
@@ -186,7 +187,10 @@ public class DealershipPlugin extends Plugin {
                 }
                 ResultSet licenses = mysqlConnection.executeQuery("SELECT * FROM licenses WHERE providerId = '" + provider.getDatabaseId() + "'");
                 while(licenses.next()) {
-                    BuyableVehicleLicense license = new BuyableVehicleLicense(licenses.getInt("modelid"), licenses.getInt("price"));
+                    BuyableVehicleLicense license = new BuyableVehicleLicense(licenses.getInt("modelid"), licenses.getInt("price"), licenses.getInt("validDays"));
+                    license.setBoughtDate(new Date(licenses.getLong("boughtDate")));
+                    license.setExpire(new Date(license.getBoughtDate().getTime() + (license.getValidDays() * 86400000)));
+                    if(license.getExpire().getTime() < System.currentTimeMillis()) license.setExpired(true);
                     license.setDatabaseId(licenses.getInt("Id"));
                     provider.getBoughtLicenses().add(license);
                 }

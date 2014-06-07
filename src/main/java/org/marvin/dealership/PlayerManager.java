@@ -6,6 +6,7 @@ import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Radius;
+import net.gtaun.shoebill.data.Vector3D;
 import net.gtaun.shoebill.event.player.*;
 import net.gtaun.shoebill.event.vehicle.*;
 import net.gtaun.shoebill.object.*;
@@ -226,74 +227,81 @@ public class PlayerManager {
                         final VehicleOffer finalOffer1 = offer;
                         ListDialog.create(playerData.getPlayer(), DealershipPlugin.getInstance().getEventManagerInstance())
                                 .caption(localizedStringSet.get(playerData.getPlayer(), "Dialog.VehicleSelection"))
-                                .buttonOk("Ok")
+                                .buttonOk(localizedStringSet.get(playerData.getPlayer(), "Main.Ok"))
                                 .buttonCancel(localizedStringSet.get(playerData.getPlayer(), "Dialog.StepOut"))
                                 .onClickCancel(abstractDialog -> playerData.getPlayer().removeFromVehicle())
                                 .item(localizedStringSet.get(playerData.getPlayer(), "Dialog.BuyVehicleTitle"), (e) -> {
                                     event.getPlayer().toggleControllable(false);
                                     event.getPlayer().getVehicle().getState().setEngine(0);
-                                    MsgboxDialog.create(event.getPlayer(), DealershipPlugin.getInstance().getEventManagerInstance())
-                                            .message(localizedStringSet.format(playerData.getPlayer(), "Dialog.BuyVehicle", VehicleModel.getName(finalOffer1.getModelId()), VehicleModel.getType(finalOffer1.getModelId()), finalOffer1.getPrice()))
-                                            .buttonCancel(localizedStringSet.get(playerData.getPlayer(), "Dialog.GoBack"))
-                                            .buttonOk(localizedStringSet.get(playerData.getPlayer(), "Dialog.Buy"))
-                                            .caption(localizedStringSet.get(playerData.getPlayer(), "Dialog.BuyVehicleTitle"))
-                                            .parentDialog(e.getCurrentDialog())
-                                            .onClickCancel(abstractDialog -> {
-                                                event.getPlayer().toggleControllable(true);
-                                                abstractDialog.showParentDialog();
-                                            })
-                                            .onClickOk(msgboxDialog -> {
-                                                if (DealershipPlugin.getInstance().getMoneyGetter().apply(event.getPlayer()) >= finalOffer1.getPrice()) {
-                                                    Random rnd = new Random();
-                                                    event.getPlayer().removeFromVehicle();
+                                    BuyableVehicleLicense license = finalOffer1.getProvider().getBoughtLicenses().stream().filter(lic -> lic.getModelid() == finalOffer1.getModelId()).findAny().orElse(null);
+                                    if (license != null && license.isExpired()) {
+                                        event.getPlayer().sendMessage(Color.RED, localizedStringSet.get(playerData.getPlayer(), "Licenses.LicenseExpired"));
+                                        event.getPlayer().toggleControllable(true);
+                                        e.getCurrentDialog().show();
+                                    } else {
+                                        MsgboxDialog.create(event.getPlayer(), DealershipPlugin.getInstance().getEventManagerInstance())
+                                                .message(localizedStringSet.format(playerData.getPlayer(), "Dialog.BuyVehicle", VehicleModel.getName(finalOffer1.getModelId()), VehicleModel.getType(finalOffer1.getModelId()), finalOffer1.getPrice()))
+                                                .buttonCancel(localizedStringSet.get(playerData.getPlayer(), "Dialog.GoBack"))
+                                                .buttonOk(localizedStringSet.get(playerData.getPlayer(), "Dialog.Buy"))
+                                                .caption(localizedStringSet.get(playerData.getPlayer(), "Dialog.BuyVehicleTitle"))
+                                                .parentDialog(e.getCurrentDialog())
+                                                .onClickCancel(abstractDialog -> {
                                                     event.getPlayer().toggleControllable(true);
-                                                    int index = rnd.nextInt(finalOffer1.getProvider().getParkingList().size());
-                                                    VehicleParkingspot parkingSpot = finalOffer1.getProvider().getParkingList().get(index);
-                                                    PlayerVehicle newPlayerVehicle = new PlayerVehicle(finalOffer1.getModelId(), event.getPlayer().getName(), parkingSpot.getLocation().x, parkingSpot.getLocation().y, parkingSpot.getLocation().z, parkingSpot.getLocation().angle, 1, 1);
-                                                    playerData.getPlayerVehicles().add(newPlayerVehicle);
-                                                    DealershipPlugin.getInstance().getPlayerVehicles().add(newPlayerVehicle);
-                                                    newPlayerVehicle.spawnVehicle();
-                                                    newPlayerVehicle.setDoors(true);
-                                                    int databaseId = DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("INSERT INTO playervehicles (owner, modelid) VALUES ('" + event.getPlayer().getName() + "', '" + finalOffer1.getModelId() + "')");
-                                                    newPlayerVehicle.setDatabaseId(databaseId);
-                                                    newPlayerVehicle.setPrice(finalOffer1.getPrice());
-                                                    newPlayerVehicle.setBoughtDate(new Date(System.currentTimeMillis()));
-                                                    newPlayerVehicle.setSellersName(finalOffer1.getProvider().getOwner());
-                                                    VehicleBoughtLogEntry boughtLogEntry = new VehicleBoughtLogEntry();
-                                                    boughtLogEntry.setBuyer(playerData.getPlayer().getName());
-                                                    boughtLogEntry.setPrice(finalOffer1.getPrice());
-                                                    boughtLogEntry.setBoughtDate(new Date(System.currentTimeMillis()));
-                                                    boughtLogEntry.setBoughtModel(finalOffer1.getModelId());
-                                                    finalOffer1.getProvider().getBoughtLogEntryList().add(boughtLogEntry);
-                                                    DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("INSERT INTO messagelog (providerId, buyer, price, modelid, boughtDate) VALUES (" + "" +
-                                                            "'" + finalOffer1.getProvider().getDatabaseId() + "', '" + event.getPlayer().getName() + "', '" + finalOffer1.getPrice() + "', '" + finalOffer1.getModelId() + "', '" + System.currentTimeMillis() + "')");
-                                                    finalOffer1.getProvider().setCash(finalOffer1.getProvider().getCash() + finalOffer1.getPrice());
-                                                    DealershipPlugin.getInstance().getAddMoneyFunction().accept(event.getPlayer(), -finalOffer1.getPrice());
-                                                    event.getPlayer().sendMessage(Color.GREEN, localizedStringSet.format(playerData.getPlayer(), "Dialog.BoughtVehicle1", finalOffer1.getPrice(), VehicleModel.getName(finalOffer1.getModelId())));
-                                                    event.getPlayer().sendMessage(Color.GREEN, localizedStringSet.get(playerData.getPlayer(), "Dialog.BoughtVehicle2"));
-                                                    event.getPlayer().sendMessage(Color.GREEN, localizedStringSet.get(playerData.getPlayer(), "Dialog.BoughtVehicle3"));
-                                                    event.getPlayer().setCheckpoint(new Checkpoint() {
-                                                        @Override
-                                                        public Radius getLocation() {
-                                                            return new Radius(parkingSpot.getLocation(), 5);
-                                                        }
+                                                    abstractDialog.showParentDialog();
+                                                })
+                                                .onClickOk(msgboxDialog -> {
+                                                    if (DealershipPlugin.getInstance().getMoneyGetter().apply(event.getPlayer()) >= finalOffer1.getPrice()) {
+                                                        Random rnd = new Random();
+                                                        event.getPlayer().removeFromVehicle();
+                                                        event.getPlayer().toggleControllable(true);
+                                                        int index = rnd.nextInt(finalOffer1.getProvider().getParkingList().size());
+                                                        VehicleParkingspot parkingSpot = finalOffer1.getProvider().getParkingList().get(index);
+                                                        PlayerVehicle newPlayerVehicle = new PlayerVehicle(finalOffer1.getModelId(), event.getPlayer().getName(), parkingSpot.getLocation().x, parkingSpot.getLocation().y, parkingSpot.getLocation().z, parkingSpot.getLocation().angle, 1, 1);
+                                                        playerData.getPlayerVehicles().add(newPlayerVehicle);
+                                                        DealershipPlugin.getInstance().getPlayerVehicles().add(newPlayerVehicle);
+                                                        newPlayerVehicle.spawnVehicle();
+                                                        newPlayerVehicle.setDoors(true);
+                                                        int databaseId = DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("INSERT INTO playervehicles (owner, modelid) VALUES ('" + event.getPlayer().getName() + "', '" + finalOffer1.getModelId() + "')");
+                                                        newPlayerVehicle.setDatabaseId(databaseId);
+                                                        newPlayerVehicle.setPrice(finalOffer1.getPrice());
+                                                        newPlayerVehicle.setBoughtDate(new Date(System.currentTimeMillis()));
+                                                        newPlayerVehicle.setSellersName(finalOffer1.getProvider().getOwner());
+                                                        VehicleBoughtLogEntry boughtLogEntry = new VehicleBoughtLogEntry();
+                                                        boughtLogEntry.setBuyer(playerData.getPlayer().getName());
+                                                        boughtLogEntry.setPrice(finalOffer1.getPrice());
+                                                        boughtLogEntry.setBoughtDate(new Date(System.currentTimeMillis()));
+                                                        boughtLogEntry.setBoughtModel(finalOffer1.getModelId());
+                                                        finalOffer1.getProvider().getBoughtLogEntryList().add(boughtLogEntry);
+                                                        DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("INSERT INTO messagelog (providerId, buyer, price, modelid, boughtDate) VALUES (" + "" +
+                                                                "'" + finalOffer1.getProvider().getDatabaseId() + "', '" + event.getPlayer().getName() + "', '" + finalOffer1.getPrice() + "', '" + finalOffer1.getModelId() + "', '" + System.currentTimeMillis() + "')");
+                                                        finalOffer1.getProvider().setCash(finalOffer1.getProvider().getCash() + finalOffer1.getPrice());
+                                                        DealershipPlugin.getInstance().getAddMoneyFunction().accept(event.getPlayer(), -finalOffer1.getPrice());
+                                                        event.getPlayer().sendMessage(Color.GREEN, localizedStringSet.format(playerData.getPlayer(), "Dialog.BoughtVehicle1", finalOffer1.getPrice(), VehicleModel.getName(finalOffer1.getModelId())));
+                                                        event.getPlayer().sendMessage(Color.GREEN, localizedStringSet.get(playerData.getPlayer(), "Dialog.BoughtVehicle2"));
+                                                        event.getPlayer().sendMessage(Color.GREEN, localizedStringSet.get(playerData.getPlayer(), "Dialog.BoughtVehicle3"));
+                                                        event.getPlayer().setCheckpoint(new Checkpoint() {
+                                                            @Override
+                                                            public Radius getLocation() {
+                                                                return new Radius(parkingSpot.getLocation(), 5);
+                                                            }
 
-                                                        @Override
-                                                        public void onEnter(Player player) {
-                                                            player.disableCheckpoint();
-                                                        }
-                                                    });
-                                                } else {
-                                                    event.getPlayer().sendMessage(Color.RED, localizedStringSet.get(playerData.getPlayer(), "Dialog.NotEnoughMoney"));
-                                                    event.getPlayer().sendMessage(Color.RED, localizedStringSet.format(playerData.getPlayer(), "Dialog.YouNeed", finalOffer1.getPrice(), VehicleModel.getName(finalOffer1.getModelId())));
-                                                    msgboxDialog.show();
-                                                }
-                                            })
-                                            .build()
-                                            .show();
+                                                            @Override
+                                                            public void onEnter(Player player) {
+                                                                player.disableCheckpoint();
+                                                            }
+                                                        });
+                                                    } else {
+                                                        event.getPlayer().sendMessage(Color.RED, localizedStringSet.get(playerData.getPlayer(), "Dialog.NotEnoughMoney"));
+                                                        event.getPlayer().sendMessage(Color.RED, localizedStringSet.format(playerData.getPlayer(), "Dialog.YouNeed", finalOffer1.getPrice(), VehicleModel.getName(finalOffer1.getModelId())));
+                                                        msgboxDialog.show();
+                                                    }
+                                                })
+                                                .build()
+                                                .show();
+                                    }
                                 })
                                 .item((finalOffer1.getProvider().isTestDrives() ? Color.GREEN.toEmbeddingString() : Color.RED.toEmbeddingString()) + localizedStringSet.get(playerData.getPlayer(), "Dialog.TestDriveTitle"), (e) -> {
-                                    if (!finalOffer1.getProvider().isTestDrives() || finalOffer1.getProvider().getTestDriveTime() < 1 || finalOffer1.getProvider().getTestDriveLocation() == null) {
+                                    if (!finalOffer1.getProvider().isTestDrives() || finalOffer1.getProvider().getTestDriveTime() < 1 || finalOffer1.getProvider().getTestDriveLocation() == null || new Vector3D(0, 0, 0).distance(finalOffer1.getProvider().getTestDriveLocation()) < 15) {
                                         playerData.getPlayer().sendMessage(Color.RED, localizedStringSet.get(playerData.getPlayer(), "Dialog.NotAllowingTestDrives"));
                                         e.getCurrentDialog().show();
                                     } else {
@@ -303,7 +311,7 @@ public class PlayerManager {
                                         playerData.getPlayer().sendMessage(Color.GREEN, localizedStringSet.get(playerData.getPlayer(), "Testdrive.Started"));
                                         playerData.getPlayer().sendMessage(Color.GREEN, localizedStringSet.format(playerData.getPlayer(), "Testdrive.DriveTime", finalOffer1.getProvider().getTestDriveTime()));
                                         playerData.setTestDriveRemover(Timer.create(finalOffer1.getProvider().getTestDriveTime() * 60000, 1, i -> {
-                                            if(playerData.getTestDriver() != null) {
+                                            if (playerData.getTestDriver() != null) {
                                                 playerData.getTestDriveRemover().stop();
                                                 playerData.getTestDriver().getVehicle().destroy();
                                                 playerData.getPlayer().setLocation(playerData.getTestDriver().getProvider().getPickupPosition());

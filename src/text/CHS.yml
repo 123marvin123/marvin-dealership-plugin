@@ -1,0 +1,287 @@
+Name:
+  Short: "车店插件"
+  Long: "汽车专卖店插件"
+
+Textdraws:
+  VehicleName: "Vehiclename: "
+  Price: "Price: "
+  ModelId: "Modelid: "
+  Delete: "Delete"
+  Cancel: "Cancel"
+
+Common:
+  VehicleName: "车辆名称："
+  Price: "价格："
+  ModelId: "模型ID："
+  Delete: "删除"
+  Cancel: "取消"
+
+Cmds:
+  Usage: "用法："
+
+Main:
+  DeletedFromModels: "* 车辆 %1$s 已从售卖列表中下架。"
+  CantUseDealer: "* 该专卖店还未设置停放点，所以无法使用。"
+  YouAreNotAOwner: "* 你不是这家专卖店的拥有者！"
+  CantLockThat: "* 你无法为这辆车上锁！"
+  SavedNewPos: "* 位置已保存。你的车辆将会被停放在这里。"
+  OptionYes: "是"
+  OptionNo: "否"
+  ParkingSpot: "停放点"
+  PositionLocated: "* 已在地图上用红色方块标记出你的专卖店位置。（距离：%1$s）"
+  YouGotDealership: "* 管理员为你用 '%1$s' 名称创建了一家汽车专卖店。"
+  DealershipLocated: "* 位置已经为你用红色方块在地图上标出。"
+  SettingsMessage: "* 你可以使用 /ahsettings 修改你的专卖店设置。"
+  PlayerOwnDealershipNow: "* 玩家 %1$s 现在已拥有车辆专卖店 '%2$s' 。"
+  OpenedPrivateVeh: ">> 你的车子 %1$s 已解锁。"
+  ClosedPrivateVeh: ">> 你的车子 %1$s 已上锁。"
+  YourVehicles: "你的车子"
+  Details: "详细信息"
+  ParkedVehicle: ">> 你的车辆将会被停放在这里。"
+  Distance: "距离"
+  YourDealership: "你的专卖店"
+  Settings: "设置"
+  Choose: "选择"
+  ModelsInSale: "销售中的车辆"
+  ParkingSpots: "停放点"
+  Find: "查找"
+  DriveToParkingSpot1: "* 请驾驶到你想要创建停放点的地方。"
+  DriveToParkingSpot2: "* 如果已经到达计划的地方，请输入 /addparking 。"
+  Enabled: "开"
+  Disabled: "关"
+  Add: "添加"
+  Ok: "确定"
+
+Dialog:
+  Change: "修改"
+  Cancel: "取消"
+  Next: "下一个"
+  ChangePriceOfTitle: "修改 %1$s 的价格"
+  ChangePriceOf: |+
+   请为 %1$s 输入新价格。
+   当前价格为：%2$s$
+  ChangedPrice: "* %1$s 的价格已经被设置为 %2$s$ 。"
+  RemovePreviewModel: |+
+   你确定你要从售卖列表中下架 %1$s 吗？
+   %2$s此操作无法取消！
+  Delete: "删除"
+  CanceledProcess: "* 操作已取消。"
+  VehicleSelection: "当前车辆"
+  StepOut: "下车"
+  BuyVehicleTitle: "购买车辆"
+  BuyVehicle: |+
+   你确定真的要购买这辆车吗？
+   车辆：%1$s
+   类型：%2$s
+   价格：%3$s$
+  GoBack: "返回"
+  Buy: "购买"
+  BoughtVehicle1: "* 你花掉 %1$s$ 购买了 %2$s 。"
+  BoughtVehicle2: "* 你的车辆现在停在专卖店里。已为你在地图上用红色方块标记出来了。"
+  BoughtVehicle3: "* 如果你需要帮助，请输入：/phelp"
+  NotEnoughMoney: "* 你没有足够的钱来购买这辆车。"
+  YouNeed: "* 你需要 %1$s$ 来购买一辆 %2$s 。"
+  TestDriveTitle: "试驾"
+  NotAllowingTestDrives: "* 该专卖店不允许试驾！"
+  AddParkingSpotTitle: "添加新的车辆停放点"
+  AddParkingSpot: |+
+   请确认你现在已经位于正确的的地点！
+   确认在此添加新的停放点吗？
+  ParkingSpotAdded: "* 该停放点已添加。"
+  SelectOwner: "选择店主"
+  ChooseNameTitle: "修改店名"
+  ChooseName: |+
+   请输入新店名。
+   （例如：%1$s）
+  SortBy: "排序："
+  Date: "日期"
+  PriceHigher: "较贵"
+  PriceLower: "较便宜"
+  LogMessage: "在 %1$s 售出：车辆：%2$s"
+  SoldAt: "在 %1$s 售出"
+  FullLogMessage: |+
+   在 %1$s 售出：
+   
+   购买者：%2$s
+   型号：%3$s (%4$s)
+   售价：%5$s$
+  LogIsEmpty: "* 日志为空。"
+  Locked: "已锁"
+  Unlocked: "未锁"
+  VehicleInformation: |+
+   车辆名：%1$s
+   型号：%2$s
+   购买价格：%3$s$
+   购买日期：%4$s
+   车辆供应商：%5$s
+   车门状态：%6$s
+  FindVehicle: "查找车辆"
+  Search: "搜索"
+  VehicleMarkedOnMap: "* 你的车辆 %1$s 已经用红色方块标记在地图上了。"
+  SellingVehicle: "卖掉 %1$s"
+  SellVehicle: "你确认想要以 %2$s$ 的价格卖掉 %1$s 吗？"
+  ListParkingSpots: "列出停放点"
+  AvailableParkingSpots: "可用的停放点"
+  DeleteParkingSpots: "删除停放点"
+  ParkingSpotGotDeleted: "* 该停放点已被删除。"
+  SureToDeleteParkingSpotTitle: "真的要删除这个停放点吗？"
+  SureToDeleteParkingSpot: "你确认你想要删除这个距离为 %1$s 的停放点吗？"
+  AddParkingSpot: "添加停放点"
+  ParkingSpotMarker: "停放点标记"
+  PreviewModels: "展览车辆模型"
+  ListPreviews: "列出展览中的车辆模型"
+  AddPreviews: "添加展览模型"
+  DeletePreviews: "删除展览模型"
+  VehicleMarked: "* 该车辆已使用红色方块在地图上标出。"
+  NoPreviews: "* 改专卖店没有任何可销售的车辆。"
+  AddPreviewPrice: "请输入这辆车的价格（只能输入数字）："
+  PriceTooLow: "* 价格不能低于 0$ ！"
+  PriceToPayForPreview: |+
+   如果你想要购买一辆 %1$s ，你就将会花掉 %2$s$ 。
+   你确定要以这个价格买下么？
+  DriveToPreviewPositionNow: "* 现在请开到你想要停放展览车辆模型的位置，然后输入 /ahsave 。"
+  NotEnoughMoneyInBank: "* 钱箱里没有足够的钱来购买车辆类型 '%1$s' 。"
+  CantGetPreviewNoLicenses: "* 你无法购买任何车辆，因为你尚未拥有任何销售执照！"
+  SureToDeletePreview: "确认要删除展览模型 '%1$s' 吗？"
+  PreviewDeleted: "* 车辆 %1$s 已被删除。"
+  DeleteDealership: "删除专卖店"
+  ConfirmDeletion: |+
+   请输入你的专卖店名称以确认删除。
+   名称：%1$s
+  InputedNameNotCorrect: "* 输入的名称不正确。"
+  DealershipDeleted: "* 你的专卖店已被删除。"
+
+Errors:
+  PriceTooLow: "* 售价不能低于 %1$s$ ！"
+  OnlyDigits: "* 只能输入数字！"
+  YouNeedToSitInAVeh: "* 你必须坐在一辆车里！"
+  ParkingSpotTooFarAway: "* 停车点必须设置在该专卖店的一定范围内（最大 100 米）！"
+  NotAllowedToUse: "* 你不允许使用这个命令！"
+  PlayerAlreadyHasDealership: "* 该玩家目前已经拥有专卖店了。"
+  NoVehicles: "* 你并无拥有任何一辆私家车。"
+  NoNearPrivateVehicle: "* 附近没有私家车可以被操作。"
+  NotInAPrivateVeh: "* 你不在任何一辆自己的私家车里！"
+  FunctionDeactivated: "* 该功能当前已被禁用。"
+  CantSellVehicle: "* 你无法出售这辆车！"
+  DontOwnADealership: "* 你并无拥有任何一家专卖店！"
+  NotNearYourDealership: "* 你没有在你的专卖店附近！"
+  NoModelsInSale: "* 你的专卖店的销售列表是空的。"
+  NoParkingSpots: "* 你的专卖店没有停放点。"
+  OnlyInputNumbers: "* 只能输入数字！"
+
+Testdrive:
+  Started: "* 试驾已开始。"
+  DriveTime: "* 你可以试驾这辆车 %1$s 分钟。"
+  Ended: "* 试驾已结束。"
+  NotActivated: "* 该专卖店不提供试驾服务！"
+  StartHere: "* 将来将会在这个位置开始试驾。"
+  Testdrives: "试驾"
+  Allowed: "允许试驾"
+  ChangeTimeTitle: "设置试驾时长"
+  ChangeTime: |+
+   请输入试驾的时长（分钟）。
+   当前时长：%1$s 分
+
+  OnlyPositiveDigits: "* 请输入正数。"
+  TooLong: "* 试驾最长时间为 5 分钟。"
+  ChangedTime: "* 当前的试驾时长为：%1$s 分钟。"
+  SetPositionTitle: "设置位置"
+  DriveToPos1: "* 请开到试驾开始的位置。"
+  DriveToPos2: "* 如果你已到达想要的位置，请输入 /settestdrive 设置。"
+  TestdrivesNotActivated: "* 当前不允许试驾！"
+
+Help:
+  Plock: " /plock - 给你附近的私家车上锁。"
+  Pfind: " /pfind - 从你的私家车里找出一辆。"
+  Psell: " /psell - 卖出你现在驾驶的私家车。"
+  Ppark: " /ppark - 在这里停放你的私家车。"
+  Pvehs: " /pvehs - 列出我的私家车。"
+  Phelp: " /phelp - 显示这个帮助信息。"
+
+Licenses:
+  Licenses: "车辆销售执照"
+  Delete: "取消执照"
+  LicenseForVehicle: "销售执照：'%1$s'"
+  SureToDelete: |+
+   你确定要取消车辆 '%1$s' 的销售执照？
+   你为这个执照支付了 %2$s$ 。
+   你无法拿回你已经为执照支付的钱！
+   所有使用该执照的车辆都会被删除。
+  DeletedLicense: "* 车辆 '%1$s' 的销售执照已被取消。"
+  CarDeleted: "* 使用这个销售执照的 %1$s 辆车已被删除。"
+  DontOwnAnyLicenses: "* 你的专卖店暂无拥有任何销售执照。"
+  Buy: "购买执照"
+  SureToBuy: "你确认要用 %2$s$ 购买车辆 '%1$s' 的销售执照吗？"
+  BoughtLicense: "* 你支付了 %1$s$ 购买了这辆车的销售执照。"
+  NotEnoughMoney: "* 钱箱里没有足够的钱。你需要 %1$s$"
+  AlreadyOwnedAllLicenses: "* 你的专卖店已拥有所有销售执照。"
+  ExpiredLicenses: "过期了的销售执照"
+  ReNew: "续期"
+  ExpiredLicenseItem: "车辆销售执照：%1$s 已过期 %2$s"
+  ReNewLicenseTitle: "续期车辆 %1$s 的销售执照"
+  NotEnoughMoney: "* 钱箱里没有足够的钱，你需要 %1$s$ 。"
+  AllLicensesAreGood: "* 你的所有销售执照已续期！"
+  AreYouSureToReNew: |+
+   你确定要续期这个销售执照吗？
+   这将会花费 %1$s$ 。
+  LicenseWasUpdated: "* 你的销售执照已续期 %1$s 天。"
+  LicenseWasUpdated2: "* 你现在可以使用了，过期时间为 %1$s 。"
+  LicenseExpired: "* 这辆车的销售执照已经过期！"
+  Expired: "已过期"
+  Valid: "有效中"
+  LicenseStatus: |+
+   车辆 %1$s 的销售执照信息
+   
+   状态：%2$s%3$s
+   过期时间：%4$s
+   价格：%5$s$
+   车辆ID：%6$s
+  BoughtLicenses: "已购买的销售执照"
+  Infos: "信息"
+
+Name:
+  Change: "修改名称"
+  InputNewName: |+
+   请输入专卖店的新名称。
+   当前名称：%1$s
+  MaxLength: "* 请输入长度为 1-24 的名称"
+  Changed: "* 你的专卖店已经改名为：%1$s"
+
+CashBox:
+  CashBox: "钱箱"
+  Status: "查看状态"
+  StatusMessage: |+
+   当前钱箱里有：
+   
+   %1$s$
+  TakeMoney: "取款"
+  Withdraw: "取款"
+  HowMuchDeposit: "你要存多少钱到钱箱里？目前钱箱里有 %1$s$ 。"
+  WithdrawValueTooHigh: "* 输入的值不能少于 1 或超过钱箱里的存款数额。"
+  DepositValueTooHigh: "* 输入的值不能少于 1 或超过你的现金数。"
+  TookMoneyOut: "* 你从钱箱中取出了 %1$s$ 。"
+  DepositMoney: "存款"
+  Deposit: "存款"
+  HowMuchToDeposit: |+
+   你想要存多少钱到钱箱里？
+   
+   你最大可以存 %1$s$ 。
+   当前钱箱里有 %2$s$ 。
+  DepositedMoney: "* 你存入了 %1$s 到钱箱里。"
+
+SellLog:
+  SellLog: "销售日志"
+  NextPage: ">> 下一页 >>"
+  PrevPage: "<< 上一页 <<"
+
+Labels:
+  ForSale: |+
+   ~ 待售中 ~
+   车辆：%1$s
+   价格：%2$s$
+   销售者：%3$s
+  DealershipInformation: |+
+   |-- 专卖店 --|
+   名称：%1$s
+   店主：%2$s
+   提供车辆数：%3$s

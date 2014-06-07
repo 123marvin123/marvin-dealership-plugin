@@ -1,5 +1,7 @@
 package org.marvin.dealership;
 
+import java.sql.Date;
+
 /**
  * Created by Marvin on 29.05.2014.
  */
@@ -7,10 +9,44 @@ public class BuyableVehicleLicense {
     private int price;
     private int modelid;
     private int databaseId;
+    private Date expire;
+    private int validDays;
+    private Date boughtDate;
+    private boolean expired;
 
-    public BuyableVehicleLicense(int modelid, int price) {
+    public BuyableVehicleLicense(int modelid, int price, int validDays) {
         this.price = price;
         this.modelid = modelid;
+        this.validDays = validDays;
+        this.expire = new Date(System.currentTimeMillis() + (validDays * 864_000_00));
+    }
+
+    void setExpired(boolean expired) {
+        this.expired = expired;
+    }
+
+    boolean isExpired() {
+        return expired;
+    }
+
+    void setBoughtDate(Date boughtDate) {
+        this.boughtDate = boughtDate;
+    }
+
+    Date getBoughtDate() {
+        return boughtDate;
+    }
+
+    public int getValidDays() {
+        return validDays;
+    }
+
+    Date getExpire() {
+        return expire;
+    }
+
+    void setExpire(Date expire) {
+        this.expire = expire;
     }
 
     public int getPrice() {

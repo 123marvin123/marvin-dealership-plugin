@@ -10,7 +10,7 @@ Textdraws:
   Cancel: "Cancel"
 
 Cmds:
-  Usage: "Uasge: "
+  Usage: "Usage: "
 
 Main:
   DeletedFromModels: "* The vehicle %1$s was removed from the offerlist."
@@ -43,6 +43,7 @@ Main:
   Enabled: "ON"
   Disabled: "OFF"
   Add: "Add"
+  Ok: "Ok"
 
 Dialog:
   Change: "Change"
@@ -208,6 +209,29 @@ Licenses:
   BoughtLicense: "* You successfully bought a license for the vehicle. You had to pay %1$s$."
   NotEnoughMoney: "* There is not enough money in the cashbox. You will need %1$s$"
   AlreadyOwnedAllLicenses: "* Your dealership already owns all licenses."
+  ExpiredLicenses: "Expired licenses"
+  ReNew: "Renew"
+  ExpiredLicenseItem: "Vehiclelicense: %1$s expired since %2$s"
+  ReNewLicenseTitle: "Renew the license of vehicle %1$s"
+  NotEnoughMoney: "* There is not enough money in the cashbox. You need %1$s$."
+  AllLicensesAreGood: "* All your licenses are up to date!"
+  AreYouSureToReNew: |+
+   Are you sure, that you want to renew the license?
+   It will cost %1$s$.
+  LicenseWasUpdated: "* Your license was renewed for %1$s day/s."
+  LicenseWasUpdated2: "* You can use it until %1$s."
+  LicenseExpired: "* The license for this vehicle has expired!"
+  Expired: "Expired"
+  Valid: "Valid"
+  BoughtLicenses: "Bought licenses"
+  Infos: "Information"
+  LicenseStatus: |+
+   Information about the license for vehicle %1$s
+   
+   Status: %2$s%3$s
+   Expires at: %4$s
+   Price: %5$s$
+   Vehicleid: %6$s
 
 Name:
   Change: "Change name"
@@ -257,3 +281,10 @@ Labels:
    Name: %1$s
    Owner: %2$s
    Offers: %3$s
+   
+Common:
+  VehicleName: "Vehiclename: "
+  Price: "Price: "
+  ModelId: "Modelid: "
+  Delete: "Delete"
+  Cancel: "Cancel"

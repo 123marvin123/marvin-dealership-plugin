@@ -43,7 +43,8 @@ Main:
   Enabled: "AN"
   Disabled: "AUS"
   Add: "Hinzufügen"
-
+  Ok: "Ok"
+  
 Dialog:
   Change: "Ändern"
   Cancel: "Abbrechen"
@@ -208,6 +209,29 @@ Licenses:
   BoughtLicense: "* Dir wurde erfolgreich eine Lizenz ausgestellt. Du musstest dafür %1$s$ zahlen."
   NotEnoughMoney: "* Es befindet sich nicht genug Geld in der Kasse. Du brauchst %1$s$"
   AlreadyOwnedAllLicenses: "* Dein Handel besitzt bereits alle verfügbare Lizenzen"
+  ExpiredLicenses: "Abgelaufene Lizenzen"
+  ReNew: "Erneuern"
+  ExpiredLicenseItem: "Fahrzeuglizenz: %1$s abgelaufen seit %2$s"
+  ReNewLicenseTitle: "Erneuern der Lizenz für das Fahrzeug %1$s"
+  NotEnoughMoney: "* Es befindet sich nicht genug Geld in der Kasse. Du brauchst %1$s$."
+  AllLicensesAreGood: "* Alle deine Lizenzen sind gültig!"
+  AreYouSureToReNew: |+
+   Bist du dir sicher, dass du die Lizenz erneuern möchtest?
+   Es wird dich %1$s$ kosten.
+  LicenseWasUpdated: "* Deine Lizenz wurde um %1$s Tag/e verlängert."
+  LicenseWasUpdated2: "* Sie kann nun bis zum %1$s verwendet werden."
+  LicenseExpired: "* Die Lizenz für dieses Fahrzeug ist abgelaufen!"
+  Expired: "Abgelaufen"
+  Valid: "Gültig"
+  BoughtLicenses: "Gekaufte Lizenzen"
+  Infos: "Informationen"
+  LicenseStatus: |+
+   Informationen zur Lizenz für das Fahrzeug %1$s
+   
+   Status: %2$s%3$s
+   Läuft ab am: %4$s
+   Preis: %5$s$
+   Fahrzeugid: %6$s
 
 Name:
   Change: "Name ändern"
@@ -257,3 +281,10 @@ Labels:
    Name: %1$s
    Besitzer: %2$s
    Menge an Angeboten: %3$s
+   
+Common:
+  VehicleName: "Fahrzeugname: "
+  Price: "Preis: "
+  ModelId: "Modelid: "
+  Delete: "Loeschen"
+  Cancel: "Abbruch"

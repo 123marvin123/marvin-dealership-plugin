@@ -83,6 +83,7 @@ public class VehicleOffer implements Destroyable {
             if(playerLabel == null) {
                 playerLabel = PlayerLabel.create(player, DealershipPlugin.getInstance().getLocalizedStringSet().format(player, "Labels.ForSale", VehicleModel.getName(modelId), price, provider.getName()), Color.GREEN, spawnLocation, 20, false);
                 playerLabel.attach(preview, 0, 0, 0);
+                playerLabels.put(player, playerLabel);
             } else
                 playerLabel.update(Color.GREEN, DealershipPlugin.getInstance().getLocalizedStringSet().format(player, "Labels.ForSale", VehicleModel.getName(modelId), price, provider.getName()));
         });
@@ -94,6 +95,9 @@ public class VehicleOffer implements Destroyable {
         playerLabels.forEach((player, playerLabel) -> {
             if(playerLabel != null) {
                 playerLabel.destroy();
+                System.out.println("Deleting for player "+ player.getName());
+            } else {
+                System.out.println("Null for player " + player.getName());
             }
         });
         playerLabels.clear();
