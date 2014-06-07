@@ -95,9 +95,6 @@ public class VehicleOffer implements Destroyable {
         playerLabels.forEach((player, playerLabel) -> {
             if(playerLabel != null) {
                 playerLabel.destroy();
-                System.out.println("Deleting for player "+ player.getName());
-            } else {
-                System.out.println("Null for player " + player.getName());
             }
         });
         playerLabels.clear();
