@@ -4,23 +4,25 @@ import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
 import net.gtaun.shoebill.constant.PlayerKey;
 import net.gtaun.shoebill.constant.TextDrawAlign;
 import net.gtaun.shoebill.constant.TextDrawFont;
+import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.AngledLocation;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.data.Vector3D;
-import net.gtaun.shoebill.object.Player;
-import net.gtaun.shoebill.object.Server;
-import net.gtaun.shoebill.object.Textdraw;
-import net.gtaun.shoebill.object.World;
+import net.gtaun.shoebill.object.*;
 import net.gtaun.shoebill.resource.Plugin;
 import net.gtaun.shoebill.service.Service;
+import net.gtaun.util.event.Event;
+import net.gtaun.util.event.EventHandler;
 import net.gtaun.util.event.EventManager;
 
 import net.gtaun.wl.lang.Language;
 import net.gtaun.wl.lang.LanguageService;
 import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.lang.event.PlayerChangeLanguageEvent;
 import org.slf4j.Logger;
 
+import javax.security.auth.callback.LanguageCallback;
 import java.io.File;
 import java.sql.*;
 import java.sql.Date;
@@ -86,6 +88,26 @@ public class DealershipPlugin extends Plugin {
         offerBoxTextdraw.setShadowSize(0);
         offerBoxTextdraw.setOutlineSize(0);
         offerBoxTextdraw.setFont(TextDrawFont.FONT2);
+
+        eventManager.registerHandler(PlayerChangeLanguageEvent.class, playerChangeLanguageEvent -> {
+            DealershipPlugin.getInstance().getVehicleProviderList().forEach(provider -> {
+                if(provider.getInformationLabels().containsKey(playerChangeLanguageEvent.getPlayer())) {
+                    provider.getInformationLabels().get(playerChangeLanguageEvent.getPlayer()).update(Color.ORANGE, DealershipPlugin.getInstance().getLocalizedStringSet().format(playerChangeLanguageEvent.getPlayer(), "Labels.DealershipInformation", provider.getName(), provider.getOwner(), provider.getOfferList().size()));
+                } else {
+                    PlayerLabel infoLabel = PlayerLabel.create(playerChangeLanguageEvent.getPlayer(), DealershipPlugin.getInstance().getLocalizedStringSet().format(playerChangeLanguageEvent.getPlayer(), "Labels.DealershipInformation", provider.getName(), provider.getOwner(), provider.getOfferList().size()), Color.ORANGE, provider.getPickupPosition(), 20, false);
+                    provider.getInformationLabels().put(playerChangeLanguageEvent.getPlayer(), infoLabel);
+                }
+                provider.getOfferList().forEach(offer -> {
+                    if(offer.getPlayerLabels().containsKey(playerChangeLanguageEvent.getPlayer())) {
+                        offer.getPlayerLabels().get(playerChangeLanguageEvent.getPlayer()).update(Color.GREEN, localizedStringSet.format(playerChangeLanguageEvent.getPlayer(), "Labels.ForSale", VehicleModel.getName(offer.getModelId()), offer.getPrice(), provider.getName()));
+                    } else {
+                        PlayerLabel label = PlayerLabel.create(playerChangeLanguageEvent.getPlayer(), localizedStringSet.format(playerChangeLanguageEvent.getPlayer(), "Labels.ForSale", VehicleModel.getName(offer.getModelId()), offer.getPrice(), provider.getName()), Color.GREEN, offer.getSpawnLocation(), 20, false);
+                        offer.getPlayerLabels().put(playerChangeLanguageEvent.getPlayer(), label);
+                        label.attach(offer.getPreview(), 0, 0, 0);
+                    }
+                });
+            });
+        });
     }
 
     @Override
@@ -105,10 +127,12 @@ public class DealershipPlugin extends Plugin {
         keyList.put("kasse", provider.getCash());
         keyList.put("name", provider.getName());
         keyList.put("testDrives", provider.isTestDrives() ? 1 : 0);
-        keyList.put("testDriveX", provider.getTestDriveLocation().x);
-        keyList.put("testDriveY", provider.getTestDriveLocation().y);
-        keyList.put("testDriveZ", provider.getTestDriveLocation().z);
-        keyList.put("testDriveA", provider.getTestDriveLocation().angle);
+        if(provider.getTestDriveLocation() != null) {
+            keyList.put("testDriveX", provider.getTestDriveLocation().x);
+            keyList.put("testDriveY", provider.getTestDriveLocation().y);
+            keyList.put("testDriveZ", provider.getTestDriveLocation().z);
+            keyList.put("testDriveA", provider.getTestDriveLocation().angle);
+        }
         keyList.put("testDriveTime", provider.getTestDriveTime());
         for(VehicleOffer offer : provider.getOfferList()) {
             mysqlConnection.executeUpdate("UPDATE vehicleoffers set spawnX = '" + offer.getSpawnLocation().x + "', spawnY = '" + offer.getSpawnLocation().y + "', spawnZ = '" + offer.getSpawnLocation().z + "', " +
@@ -143,10 +167,9 @@ public class DealershipPlugin extends Plugin {
         try {
             ResultSet providerSet = mysqlConnection.executeQuery("SELECT * FROM vehicleproviders");
             while(providerSet.next()) {
-                VehicleProvider provider = new VehicleProvider(providerSet.getString("owner"), new Location(providerSet.getFloat("pickupLocationX"), providerSet.getFloat("pickupLocationY"), providerSet.getFloat("pickupLocationZ")));
+                VehicleProvider provider = new VehicleProvider(providerSet.getString("owner"), new Location(providerSet.getFloat("pickupLocationX"), providerSet.getFloat("pickupLocationY"), providerSet.getFloat("pickupLocationZ")), providerSet.getString("name"));
                 provider.setCash(providerSet.getInt("kasse"));
                 provider.setDatabaseId(providerSet.getInt("Id"));
-                provider.setName(providerSet.getString("name"));
                 provider.setTestDrives(providerSet.getBoolean("testDrives"));
                 provider.setTestDriveTime(providerSet.getInt("testDriveTime"));
                 provider.setTestDriveLocation(new AngledLocation(providerSet.getFloat("testDriveX"), providerSet.getFloat("testDriveY"), providerSet.getFloat("testDriveZ"), providerSet.getFloat("testDriveA")));

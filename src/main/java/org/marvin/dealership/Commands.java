@@ -172,9 +172,9 @@ public class Commands {
             if (currentVehicle == null) player.sendMessage(Color.RED, localizedStringSet.get(player, "Errors.CantSellVehicle"));
             else {
                 MsgboxDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
-                        .message(localizedStringSet.format(player, "Dialog.SellVehicle", currentVehicle.getModelName(), currentVehicle.getPrice()))
-                        .buttonOk(localizedStringSet.get(player, "Main.Yes"))
-                        .buttonCancel(localizedStringSet.get(player, "Main.No"))
+                        .message(localizedStringSet.format(player, "Dialog.SellVehicle", currentVehicle.getModelName(), currentVehicle.getPrice() / 2))
+                        .buttonOk(localizedStringSet.get(player, "Main.OptionYes"))
+                        .buttonCancel(localizedStringSet.get(player, "Main.OptionNo"))
                         .caption(localizedStringSet.format(player, "Dialog.SellingVehicle", currentVehicle.getModelName()))
                         .onClickOk(msgboxDialog -> currentVehicle.sell(player))
                         .build()
@@ -291,8 +291,8 @@ public class Commands {
                                                 MsgboxDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
                                                         .caption(localizedStringSet.get(player, "Dialog.SureToDeleteParkingSpotTitle"))
                                                         .message(localizedStringSet.format(player, "Dialog.SureToDeleteParkingSpot", distance))
-                                                        .buttonOk(localizedStringSet.get(player, "Main.Yes"))
-                                                        .buttonCancel(localizedStringSet.get(player, "Main.No"))
+                                                        .buttonOk(localizedStringSet.get(player, "Main.OptionYes"))
+                                                        .buttonCancel(localizedStringSet.get(player, "Main.OptionNo"))
                                                         .parentDialog(parkplatzEvent.getCurrentDialog())
                                                         .onClickCancel(AbstractDialog::showParentDialog)
                                                         .onClickOk(msgboxDialog -> {
@@ -405,10 +405,10 @@ public class Commands {
                                         DealershipPlugin.getInstance().getBuyableLicenses().stream().filter(lic -> !playerData.getProvider().hasLicense(lic.getModelid())).forEach(lic -> {
                                             licenseDialog.addItem(localizedStringSet.format(player, "Licenses.LicenseForVehicle", VehicleModel.getName(lic.getModelid())), (licenseEvent) -> {
                                                 MsgboxDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
-                                                        .message(localizedStringSet.format(player, "Licenses.SuretoBuy", VehicleModel.getName(lic.getModelid()), lic.getPrice()))
+                                                        .message(localizedStringSet.format(player, "Licenses.SureToBuy", VehicleModel.getName(lic.getModelid()), lic.getPrice()))
                                                         .parentDialog(licenseEvent.getCurrentDialog())
-                                                        .buttonCancel(localizedStringSet.get(player, "Main.No"))
-                                                        .buttonOk(localizedStringSet.get(player, "Main.Yes"))
+                                                        .buttonCancel(localizedStringSet.get(player, "Main.OptionNo"))
+                                                        .buttonOk(localizedStringSet.get(player, "Main.OptionYes"))
                                                         .onClickCancel(AbstractDialog::showParentDialog)
                                                         .onClickOk(msgboxDialog -> {
                                                             if (playerData.getProvider().getCash() >= lic.getPrice()) {
@@ -872,8 +872,7 @@ public class Commands {
                                         player.sendMessage(Color.RED, localizedStringSet.get(player, "Errors.PlayerAlreadyHasDealership"));
                                         inputDialog.showParentDialog();
                                     } else {
-                                        VehicleProvider provider = new VehicleProvider(pl.getName(), player.getLocation());
-                                        provider.setName(s);
+                                        VehicleProvider provider = new VehicleProvider(pl.getName(), player.getLocation(), s);
                                         provider.setDatabaseId(DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("INSERT INTO vehicleproviders (owner) VALUES ('" + pl.getName() + "')"));
                                         provider.update3DTextLabel();
                                         externPlayerData.setProvider(provider);
@@ -941,8 +940,8 @@ public class Commands {
                     MsgboxDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
                             .caption(localizedStringSet.get(player, "Dialog.AddParkingSpotTitle"))
                             .message(localizedStringSet.get(player, "Dialog.AddParkingSpot"))
-                            .buttonOk(localizedStringSet.get(player, "Main.Yes"))
-                            .buttonCancel(localizedStringSet.get(player, "Main.No"))
+                            .buttonOk(localizedStringSet.get(player, "Main.OptionYes"))
+                            .buttonCancel(localizedStringSet.get(player, "Main.OptionNo"))
                             .onClickOk(msgboxDialog -> {
                                 if (player.getVehicle() == null)
                                     player.sendMessage(Color.RED, localizedStringSet.get(player, "Errors.YouNeedToSitInAVeh"));

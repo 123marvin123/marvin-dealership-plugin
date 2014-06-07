@@ -81,10 +81,10 @@ public class VehicleOffer implements Destroyable {
     public void updateLabel() {
         playerLabels.forEach((player, playerLabel) -> {
             if(playerLabel == null) {
-                playerLabel = PlayerLabel.create(player, "~ Zu verkaufen ~\nFahrzeug: " + VehicleModel.getName(modelId) + "\nPreis: " + price + "$\nVerkäufer: " + provider.getName(), Color.GREEN, spawnLocation, 20, false);
+                playerLabel = PlayerLabel.create(player, DealershipPlugin.getInstance().getLocalizedStringSet().format(player, "Labels.ForSale", VehicleModel.getName(modelId), price, provider.getName()), Color.GREEN, spawnLocation, 20, false);
                 playerLabel.attach(preview, 0, 0, 0);
             } else
-                playerLabel.update(Color.GREEN, "~ Zu verkaufen ~\nFahrzeug: " + VehicleModel.getName(modelId) + "\nPreis: " + price + "$\nVerkäufer: " + provider.getName());
+                playerLabel.update(Color.GREEN, DealershipPlugin.getInstance().getLocalizedStringSet().format(player, "Labels.ForSale", VehicleModel.getName(modelId), price, provider.getName()));
         });
     }
 

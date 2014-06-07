@@ -60,7 +60,7 @@ public class MysqlConnection {
             if (connection != null && connection.isValid(1000)) {
                 stmnt.executeUpdate("CREATE TABLE IF NOT EXISTS playervehicles (Id INTEGER PRIMARY KEY AUTO_INCREMENT, owner CHAR(24), modelid INTEGER, c1 INTEGER, c2 INTEGER," +
                         "spawnX FLOAT, spawnY FLOAT, spawnZ FLOAT, spawnA FLOAT, bought BIGINT, sellerName CHAR(24), price INTEGER, components TEXT(50))");
-                stmnt.executeUpdate("CREATE TABLE IF NOT EXISTS vehicleproviders (Id INTEGER PRIMARY KEY AUTO_INCREMENT, owner CHAR(24), pickupLocationX FLOAT, " +
+                stmnt.executeUpdate("CREATE TABLE IF NOT EXISTS vehicleproviders (Id INTEGER PRIMARY KEY AUTO_INCREMENT, owner CHAR(64), pickupLocationX FLOAT, " +
                         "pickupLocationY FLOAT, pickupLocationZ FLOAT, kasse INTEGER, parkingList TEXT(500), name CHAR(25), licenses TEXT(500), testDrives BOOLEAN, testDriveX FLOAT, " +
                         "testDriveY FLOAT, testDriveZ FLOAT, testDriveA FLOAT, testDriveTime INTEGER)");
                 stmnt.executeUpdate("CREATE TABLE IF NOT EXISTS messagelog (Id INTEGER PRIMARY KEY AUTO_INCREMENT, providerId INTEGER, buyer CHAR(24), price INTEGER, modelid INTEGER, boughtDate BIGINT)");

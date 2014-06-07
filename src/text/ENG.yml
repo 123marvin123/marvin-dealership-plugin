@@ -18,8 +18,8 @@ Main:
   YouAreNotAOwner: "* You are not the owner of a dealership!"
   CantLockThat: "* You can't affect that vehicle!"
   SavedNewPos: "* Position saved. Your vehicle will be here in the future."
-  Yes: "Yes"
-  No: "No"
+  OptionYes: "Yes"
+  OptionNo: "No"
   ParkingSpot: "Parkingspot"
   PositionLocated: "* Your dealership was marked red on the map. (Distance: %1$s)"
   YouGotDealership: "* A admin created a dealership with the name '%1$s' for you."
@@ -237,7 +237,7 @@ CashBox:
   HowMuchToDeposit: |+
    How much money would you like to deposit to the cashbox?
    
-   You can max. deposit %1$s%.
+   You can max. deposit %1$s$.
    There are currently %2$s$ in the cashbox.
   DepositedMoney: "* You deposited %1$s into the cashbox."
 
@@ -245,3 +245,15 @@ SellLog:
   SellLog: "Selllog"
   NextPage: ">> Next page >>"
   PrevPage: "<< Previous page <<"
+
+Labels:
+  ForSale: |+
+   ~ For sale ~
+   Vehicle: %1$s
+   Price: %2$s$
+   Seller: %3$s
+  DealershipInformation: |+
+   |-- Dealership --|
+   Name: %1$s
+   Owner: %2$s
+   Offers: %3$s

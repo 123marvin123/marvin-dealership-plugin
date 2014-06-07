@@ -7,6 +7,9 @@ import net.gtaun.shoebill.object.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Created by Marvin on 27.05.2014.
@@ -18,7 +21,7 @@ public class VehicleProvider implements Destroyable {
     private List<VehicleParkingspot> parkingList;
     private int cash;
     private Location pickupPosition;
-    private Label informationLabel;
+    private WeakHashMap<Player, PlayerLabel> informationLabels;
     private Pickup pickup;
     private int databaseId;
     private String name;
@@ -29,7 +32,7 @@ public class VehicleProvider implements Destroyable {
     private AngledLocation testDriveLocation;
     private int testDriveTime;
 
-    public VehicleProvider(String owner, Location pickupPosition) {
+    public VehicleProvider(String owner, Location pickupPosition, String name) {
         this.owner = owner;
         this.pickupPosition = pickupPosition;
         this.offerList = new ArrayList<>();
@@ -38,14 +41,21 @@ public class VehicleProvider implements Destroyable {
         this.pickup = Pickup.create(1275, 1, pickupPosition);
         this.boughtLicenses = new ArrayList<>();
         this.parkingSpotLabels = new ArrayList<>();
+        this.informationLabels = new WeakHashMap<>();
+        this.name = name;
+        Player.getHumans().forEach(player -> informationLabels.put(player, null));
         update3DTextLabel();
     }
 
     public void update3DTextLabel() {
-    	if(informationLabel == null || informationLabel.isDestroyed()) {
-    		this.informationLabel = Label.create("|-- Fahrzeughändler --|\nName: " + name + "\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size(), Color.ORANGE, pickupPosition, 0, 20, false);
-    	} else
-    		informationLabel.update(Color.ORANGE, "|-- Fahrzeughändler --|\nName: " + name + "\nBesitzer: " + owner + "\nMenge an Angeboten: " + offerList.size());
+        informationLabels.forEach((player, playerLabel) -> {
+            if(playerLabel == null || playerLabel.isDestroyed()) {
+                playerLabel = PlayerLabel.create(player, DealershipPlugin.getInstance().getLocalizedStringSet().format(player, "Labels.DealershipInformation", name, owner, offerList.size()), Color.GREEN, pickupPosition, 20, false);
+                informationLabels.put(player, playerLabel);
+            } else {
+                playerLabel.update(Color.ORANGE, DealershipPlugin.getInstance().getLocalizedStringSet().format(player, "Labels.DealershipInformation", name, owner, offerList.size()));
+            }
+        });
     }
 
     int getTestDriveTime() {
@@ -104,6 +114,10 @@ public class VehicleProvider implements Destroyable {
         return boughtLogEntryList;
     }
 
+    WeakHashMap<Player, PlayerLabel> getInformationLabels() {
+        return informationLabels;
+    }
+
     void setBoughtLogEntryList(List<VehicleBoughtLogEntry> boughtLogEntryList) {
         this.boughtLogEntryList = boughtLogEntryList;
     }
@@ -130,14 +144,6 @@ public class VehicleProvider implements Destroyable {
 
     void setPickupPosition(Location pickupPosition) {
         this.pickupPosition = pickupPosition;
-    }
-
-    Label getInformationLabel() {
-        return informationLabel;
-    }
-
-    void setInformationLabel(Label informationLabel) {
-        this.informationLabel = informationLabel;
     }
 
     Pickup getPickup() {
@@ -183,11 +189,14 @@ public class VehicleProvider implements Destroyable {
         parkingList.clear();
         boughtLicenses.clear();
         pickup.destroy();
-        informationLabel.destroy();
+        informationLabels.forEach((player, playerLabel) -> {
+            if(playerLabel != null && !playerLabel.isDestroyed())
+                playerLabel.destroy();
+        });
     }
 
     @Override
     public boolean isDestroyed() {
-        return informationLabel.isDestroyed() || pickup.isDestroyed();
+        return pickup.isDestroyed();
     }
 }

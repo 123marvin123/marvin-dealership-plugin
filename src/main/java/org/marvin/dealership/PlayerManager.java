@@ -39,11 +39,12 @@ public class PlayerManager {
         DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(PlayerConnectEvent.class, event -> {
             PlayerData playerData = DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObject(event.getPlayer(), PlayerData.class);
             DealershipPlugin.getInstance().getVehicleProviderList().forEach(provider -> {
+                PlayerLabel infoLabel = PlayerLabel.create(playerData.getPlayer(), DealershipPlugin.getInstance().getLocalizedStringSet().format(playerData.getPlayer(), "Labels.DealershipInformation", provider.getName(), provider.getOwner(), provider.getOfferList().size()), Color.ORANGE, provider.getPickupPosition(), 20, false);
+                provider.getInformationLabels().put(playerData.getPlayer(), infoLabel);
                 provider.getOfferList().forEach(offer -> {
-                    PlayerLabel label = PlayerLabel.create(event.getPlayer(), "~ Zu verkaufen ~\nFahrzeug: " + VehicleModel.getName(offer.getModelId()) + "\nPreis: " + offer.getPrice() + "$\nVerkäufer: " + provider.getName(), Color.GREEN, offer.getSpawnLocation(), 20, false);
+                    PlayerLabel label = PlayerLabel.create(event.getPlayer(), localizedStringSet.format(playerData.getPlayer(), "Labels.ForSale", VehicleModel.getName(offer.getModelId()), offer.getPrice(), provider.getName()), Color.GREEN, offer.getSpawnLocation(), 20, false);
                     offer.getPlayerLabels().put(event.getPlayer(), label);
                     label.attach(offer.getPreview(), 0, 0, 0);
-
                 });
             });
             DealershipPlugin.getInstance().getPlayerVehicles().forEach(playerVehicle -> {
@@ -98,9 +99,18 @@ public class PlayerManager {
         DealershipPlugin.getInstance().getEventManagerInstance().registerHandler(PlayerDisconnectEvent.class, event -> {
             PlayerData playerData = DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObject(event.getPlayer(), PlayerData.class);
             DealershipPlugin.getInstance().getVehicleProviderList().forEach(provider -> {
+                if(provider.getInformationLabels().containsKey(event.getPlayer())) {
+                    provider.getInformationLabels().get(event.getPlayer()).destroy();
+                    provider.getInformationLabels().remove(event.getPlayer());
+                }
                 provider.getOfferList().stream().forEach(offer -> {
-                    offer.getPlayerLabels().get(event.getPlayer()).destroy();
-                    offer.getPlayerLabels().remove(event.getPlayer());
+                    if(offer.getPlayerLabels().containsKey(event.getPlayer())) {
+                        PlayerLabel label = offer.getPlayerLabels().get(event.getPlayer());
+                        if(label != null && !label.isDestroyed()) {
+                            offer.getPlayerLabels().get(event.getPlayer()).destroy();
+                        }
+                        offer.getPlayerLabels().remove(event.getPlayer());
+                    }
                 });
             });
             playerData.getPlayerVehicles().forEach(PlayerVehicle::destoryVehicle);

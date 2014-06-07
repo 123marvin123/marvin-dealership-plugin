@@ -18,8 +18,8 @@ Main:
   YouAreNotAOwner: "* Du bist nicht der Besitzer eines Fahrzeughandels!"
   CantLockThat: "* Dieses Fahrzeug kannst du nicht beieinflussen!"
   SavedNewPos: "* Die Position wurde erfolgreich gepeichert. Das Fahrzeug wird in Zukunuft an dieser Stelle sein."
-  Yes: "Ja"
-  No: "Nein"
+  OptionYes: "Ja"
+  OptionNo: "Nein"
   ParkingSpot: "Parkplatz"
   PositionLocated: "* Dein Handel wurde auf der Karte rot markiert. (Distanz: %1$s)"
   YouGotDealership: "* Dir wurde soeben ein Fahrzeughandel mit dem Namen '%1$s' zugewiesen."
@@ -237,7 +237,7 @@ CashBox:
   HowMuchToDeposit: |+
    Wie viel Geld würdest du gerne in die Kasse einzahlen?
 
-   Du kannst maximal %1$s% einzahlen.
+   Du kannst maximal %1$s$ einzahlen.
    Aktuell befinden sich %2$s$ in der Kasse.
   DepositedMoney: "* Du hast soeben %1$s$ in die Kasse eingezahlt."
 
@@ -245,3 +245,15 @@ SellLog:
   SellLog: "Verkaufsverlauf"
   NextPage: ">> Nächste Seite >>"
   PrevPage: "<< Vorherige Seite <<"
+
+Labels:
+  ForSale: |+
+   ~ Zu verkaufen ~
+   Fahrzeug: %1$s
+   Preis: %2$s$
+   Anbieter: %3$s
+  DealershipInformation: |+
+   |-- Fahrzeughändler --|
+   Name: %1$s
+   Besitzer: %2$s
+   Menge an Angeboten: %3$s
