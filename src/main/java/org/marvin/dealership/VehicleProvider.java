@@ -8,8 +8,6 @@ import net.gtaun.shoebill.object.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Created by Marvin on 27.05.2014.

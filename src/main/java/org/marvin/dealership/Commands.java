@@ -3,12 +3,18 @@ package org.marvin.dealership;
 import net.gtaun.shoebill.common.command.Command;
 import net.gtaun.shoebill.common.dialog.*;
 import net.gtaun.shoebill.constant.VehicleModel;
-import net.gtaun.shoebill.data.*;
-import net.gtaun.shoebill.object.*;
+import net.gtaun.shoebill.data.AngledLocation;
+import net.gtaun.shoebill.data.Color;
+import net.gtaun.shoebill.data.Location;
+import net.gtaun.shoebill.data.Radius;
+import net.gtaun.shoebill.object.Checkpoint;
+import net.gtaun.shoebill.object.Player;
+import net.gtaun.shoebill.object.PlayerLabel;
 import net.gtaun.wl.lang.LocalizedStringSet;
 
 import java.sql.Date;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Random;
 
 /**
  * Created by Marvin on 26.05.2014.
@@ -347,7 +353,7 @@ public class Commands {
                                     .parentDialog(event.getCurrentDialog())
                                     .onClickCancel(AbstractDialog::showParentDialog)
                                     .item(localizedStringSet.get(player, "Licenses.Delete"), (e) -> {
-                                        ListDialog licenseDialog = ListDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
+                                        PageListDialog licenseDialog = PageListDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
                                                 .caption(localizedStringSet.get(player, "Licenses.Delete"))
                                                 .parentDialog(e.getCurrentDialog())
                                                 .buttonCancel(localizedStringSet.get(player, "Dialog.GoBack"))
@@ -392,7 +398,7 @@ public class Commands {
                                         }
                                     })
                                     .item(localizedStringSet.get(player, "Licenses.Buy"), (e) -> {
-                                        ListDialog licenseDialog = ListDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
+                                        PageListDialog licenseDialog = PageListDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
                                                 .caption(localizedStringSet.get(player, "Main.YourDealership") + " - " + localizedStringSet.get(player, "Licenses.Buy"))
                                                 .buttonOk("Details")
                                                 .buttonCancel(localizedStringSet.get(player, "Dialog.GoBack"))
@@ -435,7 +441,7 @@ public class Commands {
                                         }
                                     })
                                     .item(localizedStringSet.get(player, "Licenses.BoughtLicenses"), (e) -> {
-                                        ListDialog licensesDialog = ListDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
+                                        PageListDialog licensesDialog = PageListDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
                                                 .caption(localizedStringSet.get(player, "Licenses.BoughtLicenses"))
                                                 .buttonCancel(localizedStringSet.get(player, "Dialog.GoBack"))
                                                 .buttonOk(localizedStringSet.get(player, "Licenses.Infos"))
@@ -464,7 +470,7 @@ public class Commands {
                                         }
                                     })
                                     .item(localizedStringSet.get(player, "Licenses.ExpiredLicenses") + " (" + playerData.getProvider().getBoughtLicenses().stream().filter(BuyableVehicleLicense::isExpired).count() + ")", listDialogItem -> {
-                                        ListDialog expiredLicenses = ListDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
+                                        PageListDialog expiredLicenses = PageListDialog.create(player, DealershipPlugin.getInstance().getEventManagerInstance())
                                                 .caption(localizedStringSet.get(player, "Licenses.ExpiredLicenses"))
                                                 .buttonCancel(localizedStringSet.get(player, "Dialog.GoBack"))
                                                 .buttonOk(localizedStringSet.get(player, "Licenses.ReNew"))
@@ -483,9 +489,8 @@ public class Commands {
                                                                 player.sendMessage(Color.RED, localizedStringSet.format(player, "Licenses.NotEnoughMoney", lic.getPrice()));
                                                                 msgboxDialog.show();
                                                             } else {
-                                                                lic.setExpired(false);
                                                                 lic.setBoughtDate(new Date(System.currentTimeMillis()));
-                                                                lic.setExpire(new Date(lic.getBoughtDate().getTime() + (lic.getValidDays() * 86400000)));
+                                                                lic.setExpire(new Date(lic.getBoughtDate().getTime() + (lic.getValidDays() * 864_000_00)));
                                                                 player.sendMessage(Color.GREEN, localizedStringSet.format(player, "Licenses.LicenseWasUpdated", lic.getValidDays()));
                                                                 player.sendMessage(Color.GREEN, localizedStringSet.format(player, "Licenses.LicenseWasUpdated2", lic.getExpire().toString()));
                                                                 DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("UPDATE licenses SET boughtDate = '" + lic.getBoughtDate().getTime() + "' WHERE Id = '" + lic.getDatabaseId() + "'");

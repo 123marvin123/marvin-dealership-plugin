@@ -12,7 +12,6 @@ public class BuyableVehicleLicense {
     private Date expire;
     private int validDays;
     private Date boughtDate;
-    private boolean expired;
 
     public BuyableVehicleLicense(int modelid, int price, int validDays) {
         this.price = price;
@@ -21,12 +20,8 @@ public class BuyableVehicleLicense {
         this.expire = new Date(System.currentTimeMillis() + (validDays * 864_000_00));
     }
 
-    void setExpired(boolean expired) {
-        this.expired = expired;
-    }
-
     boolean isExpired() {
-        return expired;
+        return this.expire.after(new Date(System.currentTimeMillis()));
     }
 
     void setBoughtDate(Date boughtDate) {

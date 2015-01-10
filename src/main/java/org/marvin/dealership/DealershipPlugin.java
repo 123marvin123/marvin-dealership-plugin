@@ -1,35 +1,32 @@
 package org.marvin.dealership;
 
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
-import net.gtaun.shoebill.constant.PlayerKey;
 import net.gtaun.shoebill.constant.TextDrawAlign;
 import net.gtaun.shoebill.constant.TextDrawFont;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.AngledLocation;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Location;
-import net.gtaun.shoebill.data.Vector3D;
-import net.gtaun.shoebill.object.*;
-import net.gtaun.shoebill.object.Timer;
+import net.gtaun.shoebill.event.vehicle.UnoccupiedVehicleUpdateEvent;
+import net.gtaun.shoebill.object.Player;
+import net.gtaun.shoebill.object.PlayerLabel;
+import net.gtaun.shoebill.object.Server;
+import net.gtaun.shoebill.object.Textdraw;
 import net.gtaun.shoebill.resource.Plugin;
 import net.gtaun.shoebill.service.Service;
-import net.gtaun.util.event.Event;
-import net.gtaun.util.event.EventHandler;
 import net.gtaun.util.event.EventManager;
-
+import net.gtaun.util.event.EventManagerNode;
 import net.gtaun.wl.lang.Language;
 import net.gtaun.wl.lang.LanguageService;
 import net.gtaun.wl.lang.LocalizedStringSet;
 import net.gtaun.wl.lang.event.PlayerChangeLanguageEvent;
 import org.slf4j.Logger;
 
-import javax.security.auth.callback.LanguageCallback;
 import java.io.File;
-import java.sql.*;
 import java.sql.Date;
+import java.sql.ResultSet;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -60,12 +57,13 @@ public class DealershipPlugin extends Plugin {
     private boolean findCarEnabled = true;
     private Textdraw offerBoxTextdraw;
     private List<BuyableVehicleLicense> buyableLicenses;
-    private Timer licenseChecker;
+    private EventManagerNode eventManagerNode;
     @Override
     protected void onEnable() throws Throwable {
         instance = this;
         logger = getLogger();
         eventManager = getEventManager();
+        eventManagerNode = eventManager.createChildNode();
         mysqlConnection = new MysqlConnection();
         mysqlConnection.initConnection();
         mysqlConnection.makeDatabase();
@@ -80,13 +78,6 @@ public class DealershipPlugin extends Plugin {
         loadPlayerVehicles();
         loadVehicleProviders();
 
-        licenseChecker = Timer.create(3600000, i -> vehicleProviderList.stream().filter(provider -> provider.getBoughtLicenses().size() > 0).forEach(provider -> provider.getBoughtLicenses().stream().filter(lic -> !lic.isExpired()).forEach(lic -> {
-            if(lic.getExpire().getTime() < System.currentTimeMillis()) {
-                lic.setExpired(true);
-            }
-        })));
-        licenseChecker.start();
-
         offerBoxTextdraw = Textdraw.create(382.666717f, 164.937103f, "usebox");
         offerBoxTextdraw.setLetterSize(0.000000f, 15.363155f);
         offerBoxTextdraw.setTextSize(240.666687f, 0.000000f);
@@ -98,7 +89,7 @@ public class DealershipPlugin extends Plugin {
         offerBoxTextdraw.setOutlineSize(0);
         offerBoxTextdraw.setFont(TextDrawFont.FONT2);
 
-        eventManager.registerHandler(PlayerChangeLanguageEvent.class, playerChangeLanguageEvent -> {
+        eventManagerNode.registerHandler(PlayerChangeLanguageEvent.class, playerChangeLanguageEvent -> {
             DealershipPlugin.getInstance().getVehicleProviderList().forEach(provider -> {
                 if(provider.getInformationLabels().containsKey(playerChangeLanguageEvent.getPlayer())) {
                     provider.getInformationLabels().get(playerChangeLanguageEvent.getPlayer()).update(Color.ORANGE, DealershipPlugin.getInstance().getLocalizedStringSet().format(playerChangeLanguageEvent.getPlayer(), "Labels.DealershipInformation", provider.getName(), provider.getOwner(), provider.getOfferList().size()));
@@ -117,12 +108,30 @@ public class DealershipPlugin extends Plugin {
                 });
             });
         });
+
+        eventManagerNode.registerHandler(UnoccupiedVehicleUpdateEvent.class, (e) -> {
+            for (VehicleProvider provider : vehicleProviderList) {
+                for (VehicleOffer offer : provider.getOfferList()) {
+                    if (offer.getPreview() == e.getVehicle()) {
+                        offer.getPreview().setLocation(e.getVehicle().getLocation());
+                        return;
+                    }
+                }
+            }
+        });
     }
 
     @Override
     protected void onDisable() throws Throwable {
         savePlayerVehicles();
         vehicleProviderList.forEach(this::saveVehicleProvider);
+        vehicleProviderList.forEach(VehicleProvider::destroy);
+        vehicleProviderList.clear();
+        playerVehicles.forEach(PlayerVehicle::destroy);
+        playerLifecycleHolder.destroy();
+        buyableLicenses.clear();
+        offerBoxTextdraw.destroy();
+        eventManagerNode.destroy();
         mysqlConnection.closeConnection();
     }
 
@@ -190,7 +199,6 @@ public class DealershipPlugin extends Plugin {
                     BuyableVehicleLicense license = new BuyableVehicleLicense(licenses.getInt("modelid"), licenses.getInt("price"), licenses.getInt("validDays"));
                     license.setBoughtDate(new Date(licenses.getLong("boughtDate")));
                     license.setExpire(new Date(license.getBoughtDate().getTime() + (license.getValidDays() * 86400000)));
-                    if(license.getExpire().getTime() < System.currentTimeMillis()) license.setExpired(true);
                     license.setDatabaseId(licenses.getInt("Id"));
                     provider.getBoughtLicenses().add(license);
                 }
@@ -251,7 +259,7 @@ public class DealershipPlugin extends Plugin {
     }
 
     EventManager getEventManagerInstance() {
-        return eventManager;
+        return eventManagerNode;
     }
 
     List<PlayerVehicle> getPlayerVehicles() {

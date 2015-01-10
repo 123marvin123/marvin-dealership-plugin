@@ -4,9 +4,9 @@ import net.gtaun.shoebill.common.player.PlayerLifecycleObject;
 import net.gtaun.shoebill.constant.TextDrawAlign;
 import net.gtaun.shoebill.constant.TextDrawFont;
 import net.gtaun.shoebill.data.Color;
-import net.gtaun.shoebill.data.Time;
-import net.gtaun.shoebill.data.Vector3D;
-import net.gtaun.shoebill.object.*;
+import net.gtaun.shoebill.object.Player;
+import net.gtaun.shoebill.object.PlayerTextdraw;
+import net.gtaun.shoebill.object.Timer;
 import net.gtaun.util.event.EventManager;
 
 import java.util.ArrayList;

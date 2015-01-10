@@ -23,7 +23,10 @@ public class MysqlConnection {
                         line = reader.readLine();
                         String[] parts = line.split("[,]");
                         if (line.length() > 4) {
-                            connection = DriverManager.getConnection("jdbc:mysql://" + parts[0] + "/" + parts[1], parts[2], parts[3]);
+                            if (parts.length == 4)
+                                connection = DriverManager.getConnection("jdbc:mysql://" + parts[0] + "/" + parts[1], parts[2], parts[3]);
+                            else if (parts.length == 3)
+                                connection = DriverManager.getConnection("jdbc:mysql://" + parts[0] + "/" + parts[1], parts[2], null);
                             initialized = true;
                             break;
                         }

@@ -1,10 +1,10 @@
 package org.marvin.dealership;
+
 import net.gtaun.shoebill.constant.VehicleComponentSlot;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.AngledLocation;
 import net.gtaun.shoebill.data.Color;
-import net.gtaun.shoebill.data.Location;
-import net.gtaun.shoebill.data.Vector3D;
+import net.gtaun.shoebill.object.Destroyable;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.Vehicle;
@@ -14,7 +14,7 @@ import java.sql.Date;
 /**
  * Created by Marvin on 26.05.2014.
  */
-public class PlayerVehicle {
+public class PlayerVehicle implements Destroyable {
     private int price;
     private String owner;
     private Vehicle vehicle;
@@ -191,14 +191,9 @@ public class PlayerVehicle {
         setDoors(true);
     }
 
-    void destoryVehicle() {
-        if(vehicle != null && !vehicle.isDestroyed())
-            vehicle.destroy();
-    }
-
     boolean sell(Player player) {
         PlayerData playerData = DealershipPlugin.getInstance().getPlayerLifecycleHolder().getObject(player, PlayerData.class);
-        destoryVehicle();
+        destroy();
         DealershipPlugin.getInstance().getAddMoneyFunction().accept(player, price / 2);
         DealershipPlugin.getInstance().getMysqlConnection().executeUpdate("DELETE FROM playervehicles WHERE Id = " + databaseId);
         if(DealershipPlugin.getInstance().getPlayerVehicles().contains(this)) {
@@ -243,5 +238,16 @@ public class PlayerVehicle {
     }
     boolean getDoors() {
         return (vehicle.getState().getDoors() != 0);
+    }
+
+    @Override
+    public void destroy() {
+        if (vehicle != null && !vehicle.isDestroyed())
+            vehicle.destroy();
+    }
+
+    @Override
+    public boolean isDestroyed() {
+        return vehicle.isDestroyed();
     }
 }
