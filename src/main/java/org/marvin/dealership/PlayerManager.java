@@ -1,7 +1,9 @@
 package org.marvin.dealership;
 
 import net.gtaun.shoebill.common.command.PlayerCommandManager;
-import net.gtaun.shoebill.common.dialog.*;
+import net.gtaun.shoebill.common.dialog.InputDialog;
+import net.gtaun.shoebill.common.dialog.ListDialog;
+import net.gtaun.shoebill.common.dialog.MsgboxDialog;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Color;
@@ -19,7 +21,7 @@ import java.util.Random;
 /**
  * Created by Marvin on 26.05.2014.
  */
-public class PlayerManager {
+public class PlayerManager implements Destroyable {
     private PlayerCommandManager commandManager;
     private LocalizedStringSet localizedStringSet = DealershipPlugin.getInstance().getLocalizedStringSet();
     public PlayerManager() {
@@ -114,7 +116,7 @@ public class PlayerManager {
                     }
                 });
             });
-            playerData.getPlayerVehicles().forEach(PlayerVehicle::destoryVehicle);
+            playerData.getPlayerVehicles().forEach(PlayerVehicle::destroy);
             if(playerData.getTestDriver() != null) {
                 playerData.getTestDriveRemover().stop();
                 playerData.getTestDriver().getVehicle().destroy();
@@ -349,5 +351,15 @@ public class PlayerManager {
                 playerData.getPlayer().sendMessage(Color.RED, localizedStringSet.get(playerData.getPlayer(), "Testdrive.Ended"));
             }
         });
+    }
+
+    @Override
+    public void destroy() {
+        commandManager.destroy();
+    }
+
+    @Override
+    public boolean isDestroyed() {
+        return commandManager.isDestroyed();
     }
 }
