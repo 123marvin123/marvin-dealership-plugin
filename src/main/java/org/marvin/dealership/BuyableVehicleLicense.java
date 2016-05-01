@@ -21,7 +21,7 @@ public class BuyableVehicleLicense {
     }
 
     boolean isExpired() {
-        return this.expire.after(new Date(System.currentTimeMillis()));
+        return new Date(System.currentTimeMillis()).after(this.expire);
     }
 
     void setBoughtDate(Date boughtDate) {

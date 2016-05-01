@@ -18,7 +18,6 @@ import net.gtaun.wl.lang.LocalizedStringSet;
 
 import java.sql.Date;
 import java.util.Random;
-import java.util.function.Consumer;
 
 /**
  * Created by Marvin on 26.05.2014.
@@ -284,12 +283,7 @@ public class PlayerManager implements Destroyable {
                                                         event.getPlayer().sendMessage(Color.GREEN, localizedStringSet.format(playerData.getPlayer(), "Dialog.BoughtVehicle1", finalOffer1.getPrice(), VehicleModel.getName(finalOffer1.getModelId())));
                                                         event.getPlayer().sendMessage(Color.GREEN, localizedStringSet.get(playerData.getPlayer(), "Dialog.BoughtVehicle2"));
                                                         event.getPlayer().sendMessage(Color.GREEN, localizedStringSet.get(playerData.getPlayer(), "Dialog.BoughtVehicle3"));
-                                                        event.getPlayer().setCheckpoint(Checkpoint.create(new Radius(parkingSpot.getLocation(), 5), new Consumer<Player>() {
-                                                            @Override
-                                                            public void accept(Player player) {
-                                                                player.disableCheckpoint();
-                                                            }
-                                                        }, null));
+                                                        event.getPlayer().setCheckpoint(Checkpoint.create(new Radius(parkingSpot.getLocation(), 5), Player::disableCheckpoint, null));
                                                     } else {
                                                         event.getPlayer().sendMessage(Color.RED, localizedStringSet.get(playerData.getPlayer(), "Dialog.NotEnoughMoney"));
                                                         event.getPlayer().sendMessage(Color.RED, localizedStringSet.format(playerData.getPlayer(), "Dialog.YouNeed", finalOffer1.getPrice(), VehicleModel.getName(finalOffer1.getModelId())));

@@ -15,7 +15,6 @@ import net.gtaun.wl.lang.LocalizedStringSet;
 import java.sql.Date;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.function.Consumer;
 
 /**
  * Created by Marvin on 26.05.2014.
@@ -143,12 +142,9 @@ public class Commands {
                     findCarDialog.getItems().add(ListDialogItem.create()
                             .itemText(playerVehicle.getModelName() + " (" + localizedStringSet.get(player, "Main.Distance") + ": " + distanceToPlayer + ")")
                             .onSelect((listDialogItem, o) -> {
-                                player.setCheckpoint(Checkpoint.create(new Radius(playerVehicle.getVehicleLocation(), 3), new Consumer<Player>() {
-                                    @Override
-                                    public void accept(Player player) {
-                                        player.disableCheckpoint();
-                                        player.playSound(1057);
-                                    }
+                                player.setCheckpoint(Checkpoint.create(new Radius(playerVehicle.getVehicleLocation(), 3), player1 -> {
+                                    player1.disableCheckpoint();
+                                    player1.playSound(1057);
                                 }, null));
                                 player.sendMessage(Color.CORAL, localizedStringSet.format(player, "Dialog.VehicleMarkedOnMap", playerVehicle.getModelName()));
                             })
@@ -254,12 +250,7 @@ public class Commands {
                                             return (int) (loc.distance(o1.getLocation()) - loc.distance(o2.getLocation()));
                                         });
                                         for (VehicleParkingspot location : playerData.getProvider().getParkingList()) {
-                                            parkList.addItem(localizedStringSet.get(player, "Main.ParkingSpot") + " - " + localizedStringSet.get(player, "Main.Distance") + location.getLocation().distance(player.getLocation()) + " - ID: " + playerData.getProvider().getParkingList().indexOf(location), (clickEvent) -> player.setCheckpoint(Checkpoint.create(new Radius(location.getLocation(), 5), new Consumer<Player>() {
-                                                @Override
-                                                public void accept(Player player) {
-                                                    player.disableCheckpoint();
-                                                }
-                                            }, null)));
+                                            parkList.addItem(localizedStringSet.get(player, "Main.ParkingSpot") + " - " + localizedStringSet.get(player, "Main.Distance") + location.getLocation().distance(player.getLocation()) + " - ID: " + playerData.getProvider().getParkingList().indexOf(location), (clickEvent) -> player.setCheckpoint(Checkpoint.create(new Radius(location.getLocation(), 5), Player::disableCheckpoint, null)));
                                         }
                                         if (parkList.getItems().size() < 1) {
                                             player.sendMessage(Color.RED, localizedStringSet.get(player, "Errors.NoParkingSpots"));
@@ -520,12 +511,7 @@ public class Commands {
                                                 .build();
                                         for (VehicleOffer offer : playerData.getProvider().getOfferList()) {
                                             previewModelList.addItem(localizedStringSet.get(player, "Common.VehicleName") + VehicleModel.getName(offer.getModelId()), (clickEvent) -> {
-                                                player.setCheckpoint(Checkpoint.create(new Radius(offer.getPreview().getLocation(), 10), new Consumer<Player>() {
-                                                    @Override
-                                                    public void accept(Player player) {
-                                                        player.disableCheckpoint();
-                                                    }
-                                                }, null));
+                                                player.setCheckpoint(Checkpoint.create(new Radius(offer.getPreview().getLocation(), 10), Player::disableCheckpoint, null));
                                                 player.sendMessage(Color.GREEN, localizedStringSet.get(player, "Dialog.VehicleMarked"));
                                             });
                                         }
@@ -941,12 +927,9 @@ public class Commands {
                                         DealershipPlugin.getInstance().getVehicleProviderList().add(provider);
                                         pl.sendMessage(Color.GREEN, localizedStringSet.format(pl, "Main.YouGotDealership", s));
                                         pl.sendMessage(Color.GREEN, localizedStringSet.get(pl, "Main.DealershipLocated"));
-                                        pl.setCheckpoint(Checkpoint.create(new Radius(provider.getPickupPosition(), 3), new Consumer<Player>() {
-                                            @Override
-                                            public void accept(Player player) {
-                                                pl.disableCheckpoint();
-                                                pl.sendMessage(Color.GREEN, localizedStringSet.get(pl, "Main.SettingsMessage"));
-                                            }
+                                        pl.setCheckpoint(Checkpoint.create(new Radius(provider.getPickupPosition(), 3), player1 -> {
+                                            pl.disableCheckpoint();
+                                            pl.sendMessage(Color.GREEN, localizedStringSet.get(pl, "Main.SettingsMessage"));
                                         }, null));
                                         player.sendMessage(Color.GREEN, localizedStringSet.format(player, "Main.PlayerOwnDealershipNow", pl.getName(), s));
                                     }
@@ -967,12 +950,7 @@ public class Commands {
         if (playerData.getProvider() == null)
             player.sendMessage(Color.RED, localizedStringSet.get(player, "Main.YouAreNotAOwner"));
         else {
-            player.setCheckpoint(Checkpoint.create(new Radius(playerData.getProvider().getPickupPosition(), 3), new Consumer<Player>() {
-                @Override
-                public void accept(Player player) {
-                    player.disableCheckpoint();
-                }
-            }, null));
+            player.setCheckpoint(Checkpoint.create(new Radius(playerData.getProvider().getPickupPosition(), 3), Player::disableCheckpoint, null));
             player.sendMessage(Color.ORANGE, localizedStringSet.format(player, "Main.PositionLocated", player.getLocation().distance(playerData.getProvider().getPickupPosition())));
         }
         return true;
