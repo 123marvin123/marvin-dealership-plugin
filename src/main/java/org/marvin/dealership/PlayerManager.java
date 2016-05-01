@@ -1,5 +1,6 @@
 package org.marvin.dealership;
 
+import net.gtaun.shoebill.common.command.CommandParameter;
 import net.gtaun.shoebill.common.command.PlayerCommandManager;
 import net.gtaun.shoebill.common.dialog.InputDialog;
 import net.gtaun.shoebill.common.dialog.ListDialog;
@@ -17,6 +18,7 @@ import net.gtaun.wl.lang.LocalizedStringSet;
 
 import java.sql.Date;
 import java.util.Random;
+import java.util.function.Consumer;
 
 /**
  * Created by Marvin on 26.05.2014.
@@ -29,13 +31,14 @@ public class PlayerManager implements Destroyable {
         commandManager = new PlayerCommandManager(DealershipPlugin.getInstance().getEventManagerInstance());
         commandManager.registerCommands(new Commands(DealershipPlugin.getInstance().getLocalizedStringSet()));
         commandManager.installCommandHandler(HandlerPriority.NORMAL);
-        commandManager.setUsageMessageSupplier((player, s, s2, strings, s3) -> {
-            String message = localizedStringSet.get(player, "Cmds.Usage") + s + s2;
-            for (String param : strings) {
-                message += " [" + param + "]";
+
+        commandManager.setUsageMessageSupplier((player, s, commandEntry) -> {
+            String message = localizedStringSet.get(player, "Cmds.Usage") + s + commandEntry.getCommand();
+            for (CommandParameter param : commandEntry.getParameters()) {
+                message += " [" + param.name() + "]";
             }
-            if (s3 != null)
-                message += " - " + s3;
+            if (commandEntry.getHelpMessage() != null && commandEntry.getHelpMessage().length() > 0)
+                message += " - " + commandEntry.getHelpMessage();
             return message;
         });
 
@@ -281,17 +284,12 @@ public class PlayerManager implements Destroyable {
                                                         event.getPlayer().sendMessage(Color.GREEN, localizedStringSet.format(playerData.getPlayer(), "Dialog.BoughtVehicle1", finalOffer1.getPrice(), VehicleModel.getName(finalOffer1.getModelId())));
                                                         event.getPlayer().sendMessage(Color.GREEN, localizedStringSet.get(playerData.getPlayer(), "Dialog.BoughtVehicle2"));
                                                         event.getPlayer().sendMessage(Color.GREEN, localizedStringSet.get(playerData.getPlayer(), "Dialog.BoughtVehicle3"));
-                                                        event.getPlayer().setCheckpoint(new Checkpoint() {
+                                                        event.getPlayer().setCheckpoint(Checkpoint.create(new Radius(parkingSpot.getLocation(), 5), new Consumer<Player>() {
                                                             @Override
-                                                            public Radius getLocation() {
-                                                                return new Radius(parkingSpot.getLocation(), 5);
-                                                            }
-
-                                                            @Override
-                                                            public void onEnter(Player player) {
+                                                            public void accept(Player player) {
                                                                 player.disableCheckpoint();
                                                             }
-                                                        });
+                                                        }, null));
                                                     } else {
                                                         event.getPlayer().sendMessage(Color.RED, localizedStringSet.get(playerData.getPlayer(), "Dialog.NotEnoughMoney"));
                                                         event.getPlayer().sendMessage(Color.RED, localizedStringSet.format(playerData.getPlayer(), "Dialog.YouNeed", finalOffer1.getPrice(), VehicleModel.getName(finalOffer1.getModelId())));
@@ -307,7 +305,7 @@ public class PlayerManager implements Destroyable {
                                         playerData.getPlayer().sendMessage(Color.RED, localizedStringSet.get(playerData.getPlayer(), "Dialog.NotAllowingTestDrives"));
                                         e.getCurrentDialog().show();
                                     } else {
-                                        Vehicle testDriveVehicle = Vehicle.create(finalOffer1.getModelId(), finalOffer1.getProvider().getTestDriveLocation(), 1, 1, -1);
+                                        Vehicle testDriveVehicle = Vehicle.create(finalOffer1.getModelId(), finalOffer1.getProvider().getTestDriveLocation(), 1, 1, -1, false);
                                         playerData.setTestDriver(new TestDriver(testDriveVehicle, finalOffer1.getProvider()));
                                         playerData.getPlayer().setVehicle(testDriveVehicle, 0);
                                         playerData.getPlayer().sendMessage(Color.GREEN, localizedStringSet.get(playerData.getPlayer(), "Testdrive.Started"));

@@ -76,7 +76,7 @@ public class VehicleOffer implements Destroyable {
     void setSpawnLocation(AngledLocation spawnLocation) {
         this.spawnLocation = spawnLocation;
         preview.destroy();
-        preview = Vehicle.create(modelId, spawnLocation, 1, 1, 20);
+        preview = Vehicle.create(modelId, spawnLocation, 1, 1, 20, false);
     }
 
     public void updateLabel() {

@@ -73,7 +73,7 @@ public class DealershipPlugin extends Plugin {
         playerLifecycleHolder.registerClass(PlayerData.class);
         buyableLicenses = new ArrayList<>();
         languageService = Service.get(LanguageService.class);
-        localizedStringSet = languageService.createStringSet(new File(getDataDir(), "text"));
+        localizedStringSet = languageService.createStringSet(new File(getDataDir(), "text")); //points to the plugin's data dir -> text
         playerManager = new PlayerManager();
         loadPlayerVehicles();
         loadVehicleProviders();
