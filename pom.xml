@@ -8,20 +8,13 @@
     <artifactId>dealership</artifactId>
     <version>0.2-SNAPSHOT</version>
 
-    <repositories>
-        <repository>
-            <id>gtaun-public-repo</id>
-            <name>GTAUN Public Repository</name>
-            <url>http://repo.gtaun.net/content/groups/public</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
+    	<repositories>
+		<repository>
+			<id>gtaun-public-repo</id>
+			<name>GTAUN Public Repository</name>
+			<url>http://repo.gtaun.net/content/groups/public</url>
+		</repository>
+	</repositories>
 
 
 	<distributionManagement>
