@@ -262,7 +262,7 @@ public class DealershipPlugin extends Plugin {
         return eventManagerNode;
     }
 
-    List<PlayerVehicle> getPlayerVehicles() {
+    public List<PlayerVehicle> getPlayerVehicles() {
         return playerVehicles;
     }
 
